@@ -12,7 +12,7 @@ import {
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { DonorService } from './donor.service';
-import { BulkDeleteDonorsDto, CreateDonorDto, ImportDonorsDto, UpdateDonorDto } from './donor.dto';
+import { BulkDeleteDonorsDto, CreateDonorDto, ImportDonorsDto, MergeDonorsDto, UpdateDonorDto } from './donor.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('donor')
@@ -37,6 +37,12 @@ export class DonorController {
   @Post('import')
   bulkImport(@Body() dto: ImportDonorsDto, @CurrentUser() user: any) {
     return this.donorService.bulkImport(dto, user.organizationId, user.id);
+  }
+
+  @Post('merge')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  merge(@Body() dto: MergeDonorsDto, @CurrentUser() user: any) {
+    return this.donorService.merge(dto, user.organizationId, user.id);
   }
 
   @Post(':id')

@@ -42,6 +42,19 @@ export class BulkDeleteDonorsDto {
   ids: string[];
 }
 
+export class MergeDonorsDto {
+  survivorId: string;
+  ids: string[];
+  firstName?: string;
+  lastName?: string;
+  organizationName?: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+}
+
 export class UpdateDonorDto {
   donorId?: string;
   title?: string;

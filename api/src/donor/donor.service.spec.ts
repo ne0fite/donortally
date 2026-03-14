@@ -1,9 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/sequelize';
 import { Sequelize } from 'sequelize-typescript';
 import { Donor } from '../models/donor.model';
 import { DonorContact, DonorContactLabel, DonorContactType } from '../models/donor-contact.model';
+import { Donation } from '../models/donation.model';
 import { makeDonor } from '../test/fixtures/donor.fixture';
 import { makeDonorContact } from '../test/fixtures/donor-contact.fixture';
 import { ORG_ID, USER_ID } from '../test/fixtures/user.fixture';
@@ -22,13 +23,15 @@ const contactDto = {
 
 describe('DonorService', () => {
   let service: DonorService;
-  let donorModel: { findAll: jest.Mock; findOne: jest.Mock; create: jest.Mock };
-  let donorContactModel: { bulkCreate: jest.Mock; destroy: jest.Mock };
+  let donorModel: { findAll: jest.Mock; findOne: jest.Mock; create: jest.Mock; update: jest.Mock; destroy: jest.Mock };
+  let donorContactModel: { bulkCreate: jest.Mock; destroy: jest.Mock; update: jest.Mock };
+  let donationModel: { update: jest.Mock };
   let sequelize: { transaction: jest.Mock };
 
   beforeEach(async () => {
-    donorModel = { findAll: jest.fn(), findOne: jest.fn(), create: jest.fn() };
-    donorContactModel = { bulkCreate: jest.fn(), destroy: jest.fn() };
+    donorModel = { findAll: jest.fn(), findOne: jest.fn(), create: jest.fn(), update: jest.fn(), destroy: jest.fn() };
+    donorContactModel = { bulkCreate: jest.fn(), destroy: jest.fn(), update: jest.fn() };
+    donationModel = { update: jest.fn() };
     // Execute the transaction callback immediately with the mock transaction
     sequelize = { transaction: jest.fn((cb) => cb(t)) };
 
@@ -38,6 +41,7 @@ describe('DonorService', () => {
         { provide: Sequelize, useValue: sequelize },
         { provide: getModelToken(Donor), useValue: donorModel },
         { provide: getModelToken(DonorContact), useValue: donorContactModel },
+        { provide: getModelToken(Donation), useValue: donationModel },
       ],
     }).compile();
 
@@ -235,6 +239,81 @@ describe('DonorService', () => {
       expect(donorModel.create).toHaveBeenCalledTimes(2);
       expect(existing.update).toHaveBeenCalledTimes(1);
       expect(result).toEqual({ created: 2, updated: 1 });
+    });
+  });
+
+  describe('merge', () => {
+    const survivorId = 'survivor-id';
+    const discardId = 'discard-id';
+    const ids = [survivorId, discardId];
+    const mergeFields = {
+      firstName: 'John',
+      lastName: 'Doe',
+      organizationName: 'Acme',
+      address1: '123 Main St',
+      address2: '',
+      city: 'Springfield',
+      state: 'IL',
+      postalCode: '62701',
+    };
+
+    it('migrates donations and contacts, updates survivor, deletes discarded donors', async () => {
+      const survivor = makeDonor({ id: survivorId });
+      const discard = makeDonor({ id: discardId });
+      donorModel.findAll.mockResolvedValue([survivor, discard]);
+
+      await service.merge({ survivorId, ids, ...mergeFields }, ORG_ID, USER_ID);
+
+      expect(donationModel.update).toHaveBeenCalledWith(
+        { donorId: survivorId, updatedById: USER_ID },
+        { where: { donorId: [discardId], organizationId: ORG_ID }, transaction: t },
+      );
+      expect(donorContactModel.update).toHaveBeenCalledWith(
+        { donorId: survivorId },
+        { where: { donorId: [discardId] }, transaction: t },
+      );
+      expect(donorModel.update).toHaveBeenCalledWith(
+        { ...mergeFields, updatedById: USER_ID },
+        { where: { id: survivorId }, transaction: t },
+      );
+      expect(donorModel.destroy).toHaveBeenCalledWith({
+        where: { id: [discardId], organizationId: ORG_ID },
+        transaction: t,
+      });
+    });
+
+    it('throws BadRequestException when survivorId is not in ids', async () => {
+      const survivor = makeDonor({ id: survivorId });
+      const discard = makeDonor({ id: discardId });
+      donorModel.findAll.mockResolvedValue([survivor, discard]);
+
+      await expect(
+        service.merge({ survivorId: 'other-id', ids, ...mergeFields }, ORG_ID, USER_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('throws BadRequestException when a donor does not belong to the org', async () => {
+      // findAll returns fewer donors than requested → one was not found in org
+      donorModel.findAll.mockResolvedValue([makeDonor({ id: survivorId })]);
+
+      await expect(
+        service.merge({ survivorId, ids, ...mergeFields }, ORG_ID, USER_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('wraps all operations in a single transaction', async () => {
+      const survivor = makeDonor({ id: survivorId });
+      const discard = makeDonor({ id: discardId });
+      donorModel.findAll.mockResolvedValue([survivor, discard]);
+
+      await service.merge({ survivorId, ids, ...mergeFields }, ORG_ID, USER_ID);
+
+      expect(sequelize.transaction).toHaveBeenCalledTimes(1);
+      // All operations receive the same transaction object
+      expect(donationModel.update.mock.calls[0][1].transaction).toBe(t);
+      expect(donorContactModel.update.mock.calls[0][1].transaction).toBe(t);
+      expect(donorModel.update.mock.calls[0][1].transaction).toBe(t);
+      expect(donorModel.destroy.mock.calls[0][0].transaction).toBe(t);
     });
   });
 

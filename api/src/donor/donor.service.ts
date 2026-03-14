@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { randomUUID } from 'crypto';
 import { Sequelize } from 'sequelize-typescript';
 import { Donor } from '../models/donor.model';
 import { DonorContact } from '../models/donor-contact.model';
-import { CreateDonorDto, ImportDonorsDto, UpdateDonorDto } from './donor.dto';
+import { Donation } from '../models/donation.model';
+import { CreateDonorDto, ImportDonorsDto, MergeDonorsDto, UpdateDonorDto } from './donor.dto';
 
 const WITH_CONTACTS = { include: [DonorContact] };
 
@@ -14,6 +15,7 @@ export class DonorService {
     private readonly sequelize: Sequelize,
     @InjectModel(Donor) private readonly donorModel: typeof Donor,
     @InjectModel(DonorContact) private readonly donorContactModel: typeof DonorContact,
+    @InjectModel(Donation) private readonly donationModel: typeof Donation,
   ) {}
 
   findAll(organizationId: string): Promise<Donor[]> {
@@ -73,6 +75,41 @@ export class DonorService {
   async remove(id: string, organizationId: string): Promise<void> {
     const donor = await this.findOne(id, organizationId);
     await donor.destroy();
+  }
+
+  async merge(dto: MergeDonorsDto, organizationId: string, userId: string): Promise<void> {
+    const { survivorId, ids } = dto;
+    const donors = await this.donorModel.findAll({ where: { id: ids, organizationId } });
+    if (donors.length !== ids.length) throw new BadRequestException('One or more donors not found');
+    if (!ids.includes(survivorId)) throw new BadRequestException('survivorId must be in ids');
+
+    const discardIds = ids.filter((id) => id !== survivorId);
+
+    await this.sequelize.transaction(async (t) => {
+      await this.donationModel.update(
+        { donorId: survivorId, updatedById: userId },
+        { where: { donorId: discardIds, organizationId }, transaction: t },
+      );
+      await this.donorContactModel.update(
+        { donorId: survivorId },
+        { where: { donorId: discardIds }, transaction: t },
+      );
+      await this.donorModel.update(
+        {
+          firstName: dto.firstName,
+          lastName: dto.lastName,
+          organizationName: dto.organizationName,
+          address1: dto.address1,
+          address2: dto.address2,
+          city: dto.city,
+          state: dto.state,
+          postalCode: dto.postalCode,
+          updatedById: userId,
+        },
+        { where: { id: survivorId }, transaction: t },
+      );
+      await this.donorModel.destroy({ where: { id: discardIds, organizationId }, transaction: t });
+    });
   }
 
   async bulkRemove(ids: string[], organizationId: string): Promise<void> {

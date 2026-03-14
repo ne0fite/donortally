@@ -46,4 +46,16 @@ export const donorService = {
   bulkImport: (donors: CreateDonorPayload[]) =>
     api.post<{ created: number; updated: number }>('/donor/import', { donors }),
   bulkDelete: (ids: string[]) => api.delete('/donor', { ids }),
+  merge: (payload: {
+    survivorId: string;
+    ids: string[];
+    firstName?: string;
+    lastName?: string;
+    organizationName?: string;
+    address1?: string;
+    address2?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
+  }) => api.post('/donor/merge', payload),
 };

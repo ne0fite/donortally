@@ -27,6 +27,14 @@ export class AppDonors {
   @State() bulkDeleteInput = '';
   @State() bulkDeleting = false;
 
+  // Merge modal
+  @State() mergeDonors: Donor[] = [];
+  @State() mergeDonationCounts: Record<string, number> = {};
+  @State() mergeWinnerId = '';
+  @State() mergeFields = { firstName: '', lastName: '', organizationName: '', address1: '', address2: '', city: '', state: '', postalCode: '' };
+  @State() merging = false;
+  @State() mergeError = '';
+
   // Add donation modal
   @State() addDonationDonor: Donor | null = null;
   @State() donCampaigns: Campaign[] = [];
@@ -179,10 +187,56 @@ export class AppDonors {
     }
   }
 
-  private onBulkAction(action: string) {
+  private async onBulkAction(action: string) {
     if (action === 'delete') {
       this.bulkDeleteInput = '';
       this.bulkDeleteConfirm = true;
+    } else if (action === 'merge') {
+      this.mergeDonors = this.donors.filter((d) => this.selectedIds.includes(d.id));
+      this.mergeWinnerId = '';
+      this.mergeFields = { firstName: '', lastName: '', organizationName: '', address1: '', address2: '', city: '', state: '', postalCode: '' };
+      this.mergeError = '';
+      this.mergeDonationCounts = {};
+      try {
+        const donations = await donationService.findAll();
+        const counts: Record<string, number> = {};
+        for (const d of donations) {
+          counts[d.donorId] = (counts[d.donorId] ?? 0) + 1;
+        }
+        this.mergeDonationCounts = counts;
+      } catch {
+        // non-fatal — counts just won't show
+      }
+    }
+  }
+
+  private onMergeWinnerChange(donor: Donor) {
+    this.mergeWinnerId = donor.id;
+    this.mergeFields = {
+      firstName: donor.firstName ?? '',
+      lastName: donor.lastName ?? '',
+      organizationName: donor.organizationName ?? '',
+      address1: donor.address1 ?? '',
+      address2: donor.address2 ?? '',
+      city: donor.city ?? '',
+      state: donor.state ?? '',
+      postalCode: donor.postalCode ?? '',
+    };
+  }
+
+  private async handleMerge() {
+    this.merging = true;
+    this.mergeError = '';
+    try {
+      await donorService.merge({ survivorId: this.mergeWinnerId, ids: this.selectedIds, ...this.mergeFields });
+      const discardIds = this.selectedIds.filter((id) => id !== this.mergeWinnerId);
+      this.donors = this.donors.filter((d) => !discardIds.includes(d.id));
+      this.selectedIds = [];
+      this.mergeDonors = [];
+    } catch {
+      this.mergeError = 'Merge failed. Please try again.';
+    } finally {
+      this.merging = false;
     }
   }
 
@@ -289,6 +343,7 @@ export class AppDonors {
                 >
                   <option value="" disabled selected>Bulk actions ({count})</option>
                   <option value="delete">Delete selected</option>
+                  {count >= 2 && <option value="merge">Merge selected ({count})</option>}
                 </select>
               )}
               <button
@@ -590,6 +645,116 @@ export class AppDonors {
                   class="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 transition-colors"
                 >
                   {this.deleting ? 'Deleting…' : 'Delete'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Merge dialog */}
+        {this.mergeDonors.length > 0 && (
+          <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+               onClick={() => !this.merging && (this.mergeDonors = [])}>
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 flex flex-col max-h-[90vh]"
+                 onClick={(e) => e.stopPropagation()}>
+              <div class="px-6 py-4 border-b">
+                <h2 class="text-lg font-semibold">Merge Donors ({this.mergeDonors.length} selected)</h2>
+              </div>
+              <div class="overflow-y-auto flex-1 px-6 py-4 space-y-6">
+
+                {/* Step 1: Choose winner */}
+                <div>
+                  <p class="text-sm font-medium text-gray-700 mb-2">Choose the record to keep:</p>
+                  <div class="space-y-2">
+                    {this.mergeDonors.map((donor) => (
+                      <label key={donor.id} class={`flex items-start gap-3 p-3 rounded border cursor-pointer ${this.mergeWinnerId === donor.id ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200'}`}>
+                        <input type="radio" name="mergeWinner" value={donor.id}
+                               checked={this.mergeWinnerId === donor.id}
+                               onChange={() => this.onMergeWinnerChange(donor)}
+                               class="mt-0.5" />
+                        <div class="text-sm flex-1">
+                          <div class="font-medium flex items-center gap-2">
+                            <span>{[donor.firstName, donor.lastName].filter(Boolean).join(' ') || donor.organizationName || '(No name)'}</span>
+                            {donor.donorId && <span class="text-gray-400 font-normal">{donor.donorId}</span>}
+                            <span class="ml-auto text-xs font-normal text-gray-500">
+                              {this.mergeDonationCounts[donor.id] ?? 0} donation{(this.mergeDonationCounts[donor.id] ?? 0) !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                          <div class="text-gray-500 text-xs mt-0.5">
+                            {[donor.address1, donor.city, donor.state, donor.postalCode].filter(Boolean).join(', ') || '(no address)'}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Step 2: Reconcile fields (shown once a winner is chosen) */}
+                {this.mergeWinnerId && (
+                  <div>
+                    <p class="text-sm font-medium text-gray-700 mb-2">Edit the surviving record's details:</p>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">First name</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.firstName}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, firstName: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Last name</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.lastName}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, lastName: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Organization name</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.organizationName}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, organizationName: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address line 1</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.address1}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, address1: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Address line 2</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.address2}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, address2: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.city}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, city: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.state}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, state: (e.target as HTMLInputElement).value }} />
+                      </div>
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Postal code</label>
+                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                               value={this.mergeFields.postalCode}
+                               onInput={(e) => this.mergeFields = { ...this.mergeFields, postalCode: (e.target as HTMLInputElement).value }} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {this.mergeError && <p class="text-sm text-red-600">{this.mergeError}</p>}
+              </div>
+              <div class="px-6 py-4 border-t flex justify-end gap-3">
+                <button class="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                        onClick={() => (this.mergeDonors = [])} disabled={this.merging}>Cancel</button>
+                <button class="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+                        onClick={() => this.handleMerge()}
+                        disabled={!this.mergeWinnerId || this.merging}>
+                  {this.merging ? 'Merging…' : 'Merge'}
                 </button>
               </div>
             </div>
