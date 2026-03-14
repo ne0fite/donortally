@@ -109,10 +109,10 @@ export class AppCampaigns {
   private sortHeader(label: string, col: 'name' | 'startDate') {
     const active = this.sortCol === col;
     return (
-      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <th class="col-header">
         <button
           onClick={() => this.onSort(col)}
-          class="flex items-center gap-1 hover:text-gray-800 transition-colors"
+          class="flex items-center gap-1 hover:text-gray-900 transition-colors"
         >
           {label}
           <span class={active ? 'text-indigo-600' : 'text-gray-300'}>
@@ -162,11 +162,11 @@ export class AppCampaigns {
                 <thead class="bg-gray-50 border-b border-gray-200">
                   <tr>
                     {this.sortHeader('Name', 'name')}
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                    {this.sortHeader('Start date', 'startDate')}
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">End date</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Goal</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="col-header">Description</th>
+                    {this.sortHeader('Start Date', 'startDate')}
+                    <th class="col-header">End Date</th>
+                    <th class="col-header">Goal</th>
+                    <th class="col-header">Status</th>
                     <th class="px-4 py-3" />
                   </tr>
                 </thead>

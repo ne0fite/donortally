@@ -138,11 +138,11 @@ export class AppDashboard {
                     <table class="w-full text-sm">
                       <thead class="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Donor</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Campaign</th>
-                          <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                          <th class="col-header">Donor</th>
+                          <th class="col-header">Amount</th>
+                          <th class="col-header">Date</th>
+                          <th class="col-header">Campaign</th>
+                          <th class="col-header">Status</th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-100">

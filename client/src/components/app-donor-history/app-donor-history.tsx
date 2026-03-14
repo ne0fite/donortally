@@ -216,10 +216,10 @@ export class AppDonorHistory {
   private renderSortHeader(label: string, col: typeof this.sortCol) {
     const active = this.sortCol === col;
     return (
-      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <th class="col-header">
         <button
           onClick={() => this.onSort(col)}
-          class="flex items-center gap-1 hover:text-gray-800 transition-colors"
+          class="flex items-center gap-1 hover:text-gray-900 transition-colors"
         >
           {label}
           <span class={active ? 'text-indigo-600' : 'text-gray-300'}>
@@ -318,7 +318,7 @@ export class AppDonorHistory {
                         class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
                     </th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Donation ID</th>
+                    <th class="col-header">Donation ID</th>
                     {this.renderSortHeader('Date', 'date')}
                     {this.renderSortHeader('Amount', 'amount')}
                     {this.renderSortHeader('Payment Type', 'paymentType')}

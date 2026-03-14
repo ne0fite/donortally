@@ -40,7 +40,7 @@ export class AppDonations {
   @State() error = '';
   @State() confirmDelete: Donation | null = null;
   @State() deleting = false;
-  @State() sortCol: 'date' | 'donor' | 'amount' | 'status' | 'acknowledged' = 'date';
+  @State() sortCol: 'date' | 'donor' | 'amount' | 'paymentType' | 'status' | 'acknowledged' = 'date';
   @State() sortDir: 'asc' | 'desc' = 'desc';
   @State() selectedIds: string[] = [];
   @State() bulkDeleteConfirm = false;
@@ -80,6 +80,10 @@ export class AppDonations {
         }
         case 'amount':
           return (a.amount - b.amount) * dir;
+        case 'paymentType':
+          const av = a.paymentType ?? '';
+          const bv = b.paymentType ?? '';
+          return (av < bv ? -1 : av > bv ? 1 : 0) * dir;
         case 'status':
           return (a.status < b.status ? -1 : a.status > b.status ? 1 : 0) * dir;
         case 'acknowledged': {
@@ -201,10 +205,10 @@ export class AppDonations {
   private renderSortHeader(label: string, col: typeof this.sortCol) {
     const active = this.sortCol === col;
     return (
-      <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+      <th class="col-header">
         <button
           onClick={() => this.onSort(col)}
-          class="flex items-center gap-1 hover:text-gray-800 transition-colors"
+          class="flex items-center gap-1 hover:text-gray-900 transition-colors"
         >
           {label}
           <span class={active ? 'text-indigo-600' : 'text-gray-300'}>
@@ -289,11 +293,11 @@ export class AppDonations {
                         class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                       />
                     </th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Donation ID</th>
+                    <th class="col-header">Donation ID</th>
                     {this.renderSortHeader('Date', 'date')}
                     {this.renderSortHeader('Donor', 'donor')}
                     {this.renderSortHeader('Amount', 'amount')}
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Payment type</th>
+                    {this.renderSortHeader('Payment Type', 'paymentType')}
                     {this.renderSortHeader('Status', 'status')}
                     {this.renderSortHeader('Acknowledged', 'acknowledged')}
                     <th class="px-4 py-3" />

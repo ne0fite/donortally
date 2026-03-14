@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.col-header {
+  @apply px-4 py-3 text-left text-sm font-semibold text-gray-700;
+}
+
 /* Style Google PlaceAutocompleteElement to match app inputs */
 gmp-place-autocomplete {
   width: 100%;
