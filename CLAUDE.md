@@ -122,5 +122,11 @@ Tests live alongside services as `*.service.spec.ts`. Models are mocked as plain
 ### Stencil JSX gotchas
 - `<select>` has no `value` prop — set `selected={state === opt}` on each `<option>` instead (same pattern as status/campaign dropdowns throughout the codebase)
 
+### Client formatting utilities
+Use `src/services/format.ts` for all display formatting — do not write local helpers:
+- `formatDate(value)` — handles `string | null | undefined`; appends `T00:00:00` to date-only strings to prevent UTC-midnight timezone shift
+- `formatAmount(amount, currency)` — `amount` must be a `number`; `Campaign.goalAmount` is `string | null`, so use `parseFloat` with a null guard
+- `formatNumber(value)` — apply to every displayed count/total (list headers, pager, import screens, stat cards)
+
 ### Commit Message Format
 Use the Conventional Commits specification for commit messages with less than 100 chars

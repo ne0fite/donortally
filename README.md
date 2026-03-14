@@ -6,8 +6,9 @@ A multi-tenant web application for organizations to record, manage, and report o
 
 - **Donation tracking** — Record and report on donations per donor, campaign, and group
 - **Multi-tenant** — Each organization's data is fully isolated
-- **Import/export** — Move data in and out in multiple formats
+- **Import/export** — Bulk import via CSV/Excel and export to CSV/Excel across donors, donations, and campaigns
 - **Super administration** — Privileged users can view and manage all organizations
+- **Pagination and search** — All list views support search, configurable page size, and sorting
 
 ## How Organizations Get Access
 
