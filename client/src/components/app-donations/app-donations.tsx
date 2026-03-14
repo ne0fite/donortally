@@ -1,5 +1,5 @@
 import { Component, h, State } from '@stencil/core';
-import { donationService, Donation } from '../../services/donation';
+import { donationService, Donation, DonationDonor } from '../../services/donation';
 import { navigate } from '../../services/router';
 import * as XLSX from 'xlsx';
 
@@ -218,6 +218,25 @@ export class AppDonations {
     );
   }
 
+  private renderDonorName(donor: DonationDonor) {
+    if (donor.firstName || donor.lastName) {
+      return (
+        <div>
+          <div class="font-medium text-gray-900">
+            {donor.firstName} {donor.lastName}
+          </div>
+          {donor.organizationName && (
+            <div class="text-xs text-gray-500">{donor.organizationName}</div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div class="font-medium text-gray-900">{donor.organizationName || '--'}</div>
+    );
+  }
+
   render() {
     const count = this.selectedIds.length;
 
@@ -322,12 +341,7 @@ export class AppDonations {
                           {formatDate(donation.donationDate)}
                         </td>
                         <td class="px-4 py-3">
-                          <div class="font-medium text-gray-900">
-                            {donation.donor.firstName} {donation.donor.lastName}
-                          </div>
-                          {donation.donor.organizationName && (
-                            <div class="text-xs text-gray-500">{donation.donor.organizationName}</div>
-                          )}
+                          {this.renderDonorName(donation.donor)}
                         </td>
                         <td class="px-4 py-3 text-gray-900 font-medium whitespace-nowrap">
                           {formatAmount(donation.amount, donation.currency)}
