@@ -1,5 +1,5 @@
 {
-  "name": "donorplug-api",
+  "name": "donortally-api",
   "version": "1.0.0",
   "description": "DonorTally API",
   "main": "index.js",
