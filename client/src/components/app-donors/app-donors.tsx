@@ -743,34 +743,18 @@ export class AppDonors {
                                onInput={(e) => this.mergeFields = { ...this.mergeFields, organizationName: (e.target as HTMLInputElement).value }} />
                       </div>
                       <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Address line 1</label>
-                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                               value={this.mergeFields.address1}
-                               onInput={(e) => this.mergeFields = { ...this.mergeFields, address1: (e.target as HTMLInputElement).value }} />
-                      </div>
-                      <div class="col-span-2">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Address line 2</label>
-                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                               value={this.mergeFields.address2}
-                               onInput={(e) => this.mergeFields = { ...this.mergeFields, address2: (e.target as HTMLInputElement).value }} />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">City</label>
-                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                               value={this.mergeFields.city}
-                               onInput={(e) => this.mergeFields = { ...this.mergeFields, city: (e.target as HTMLInputElement).value }} />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">State</label>
-                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                               value={this.mergeFields.state}
-                               onInput={(e) => this.mergeFields = { ...this.mergeFields, state: (e.target as HTMLInputElement).value }} />
-                      </div>
-                      <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Postal code</label>
-                        <input class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                               value={this.mergeFields.postalCode}
-                               onInput={(e) => this.mergeFields = { ...this.mergeFields, postalCode: (e.target as HTMLInputElement).value }} />
+                        <app-address-section
+                          address1={this.mergeFields.address1}
+                          address2={this.mergeFields.address2}
+                          city={this.mergeFields.city}
+                          state={this.mergeFields.state}
+                          postalCode={this.mergeFields.postalCode}
+                          onAddress1Change={(e: CustomEvent<string>) => this.mergeFields = { ...this.mergeFields, address1: e.detail }}
+                          onAddress2Change={(e: CustomEvent<string>) => this.mergeFields = { ...this.mergeFields, address2: e.detail }}
+                          onCityChange={(e: CustomEvent<string>) => this.mergeFields = { ...this.mergeFields, city: e.detail }}
+                          onDonorStateChange={(e: CustomEvent<string>) => this.mergeFields = { ...this.mergeFields, state: e.detail }}
+                          onPostalCodeChange={(e: CustomEvent<string>) => this.mergeFields = { ...this.mergeFields, postalCode: e.detail }}
+                        />
                       </div>
                     </div>
                   </div>
