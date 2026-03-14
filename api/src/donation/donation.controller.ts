@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -20,8 +21,8 @@ export class DonationController {
   constructor(private readonly donationService: DonationService) {}
 
   @Get()
-  findAll(@CurrentUser() user: any) {
-    return this.donationService.findAll(user.organizationId);
+  findAll(@CurrentUser() user: any, @Query('donorId') donorId?: string) {
+    return this.donationService.findAll(user.organizationId, donorId);
   }
 
   @Get(':id')

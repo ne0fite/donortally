@@ -45,10 +45,14 @@ export namespace Components {
     interface AppDonationImport {
     }
     interface AppDonationNew {
+        "preselectedDonorId"?: string;
     }
     interface AppDonations {
     }
     interface AppDonorEdit {
+        "donorId": string;
+    }
+    interface AppDonorHistory {
         "donorId": string;
     }
     interface AppDonorImport {
@@ -183,6 +187,12 @@ declare global {
         prototype: HTMLAppDonorEditElement;
         new (): HTMLAppDonorEditElement;
     };
+    interface HTMLAppDonorHistoryElement extends Components.AppDonorHistory, HTMLStencilElement {
+    }
+    var HTMLAppDonorHistoryElement: {
+        prototype: HTMLAppDonorHistoryElement;
+        new (): HTMLAppDonorHistoryElement;
+    };
     interface HTMLAppDonorImportElement extends Components.AppDonorImport, HTMLStencilElement {
     }
     var HTMLAppDonorImportElement: {
@@ -295,6 +305,7 @@ declare global {
         "app-donation-new": HTMLAppDonationNewElement;
         "app-donations": HTMLAppDonationsElement;
         "app-donor-edit": HTMLAppDonorEditElement;
+        "app-donor-history": HTMLAppDonorHistoryElement;
         "app-donor-import": HTMLAppDonorImportElement;
         "app-donor-new": HTMLAppDonorNewElement;
         "app-donors": HTMLAppDonorsElement;
@@ -357,10 +368,14 @@ declare namespace LocalJSX {
     interface AppDonationImport {
     }
     interface AppDonationNew {
+        "preselectedDonorId"?: string;
     }
     interface AppDonations {
     }
     interface AppDonorEdit {
+        "donorId": string;
+    }
+    interface AppDonorHistory {
         "donorId": string;
     }
     interface AppDonorImport {
@@ -424,7 +439,13 @@ declare namespace LocalJSX {
     interface AppDonationEditAttributes {
         "donationId": string;
     }
+    interface AppDonationNewAttributes {
+        "preselectedDonorId": string;
+    }
     interface AppDonorEditAttributes {
+        "donorId": string;
+    }
+    interface AppDonorHistoryAttributes {
         "donorId": string;
     }
     interface AppHeaderAttributes {
@@ -450,9 +471,10 @@ declare namespace LocalJSX {
         "app-dashboard": AppDashboard;
         "app-donation-edit": Omit<AppDonationEdit, keyof AppDonationEditAttributes> & { [K in keyof AppDonationEdit & keyof AppDonationEditAttributes]?: AppDonationEdit[K] } & { [K in keyof AppDonationEdit & keyof AppDonationEditAttributes as `attr:${K}`]?: AppDonationEditAttributes[K] } & { [K in keyof AppDonationEdit & keyof AppDonationEditAttributes as `prop:${K}`]?: AppDonationEdit[K] } & OneOf<"donationId", AppDonationEdit["donationId"], AppDonationEditAttributes["donationId"]>;
         "app-donation-import": AppDonationImport;
-        "app-donation-new": AppDonationNew;
+        "app-donation-new": Omit<AppDonationNew, keyof AppDonationNewAttributes> & { [K in keyof AppDonationNew & keyof AppDonationNewAttributes]?: AppDonationNew[K] } & { [K in keyof AppDonationNew & keyof AppDonationNewAttributes as `attr:${K}`]?: AppDonationNewAttributes[K] } & { [K in keyof AppDonationNew & keyof AppDonationNewAttributes as `prop:${K}`]?: AppDonationNew[K] };
         "app-donations": AppDonations;
         "app-donor-edit": Omit<AppDonorEdit, keyof AppDonorEditAttributes> & { [K in keyof AppDonorEdit & keyof AppDonorEditAttributes]?: AppDonorEdit[K] } & { [K in keyof AppDonorEdit & keyof AppDonorEditAttributes as `attr:${K}`]?: AppDonorEditAttributes[K] } & { [K in keyof AppDonorEdit & keyof AppDonorEditAttributes as `prop:${K}`]?: AppDonorEdit[K] } & OneOf<"donorId", AppDonorEdit["donorId"], AppDonorEditAttributes["donorId"]>;
+        "app-donor-history": Omit<AppDonorHistory, keyof AppDonorHistoryAttributes> & { [K in keyof AppDonorHistory & keyof AppDonorHistoryAttributes]?: AppDonorHistory[K] } & { [K in keyof AppDonorHistory & keyof AppDonorHistoryAttributes as `attr:${K}`]?: AppDonorHistoryAttributes[K] } & { [K in keyof AppDonorHistory & keyof AppDonorHistoryAttributes as `prop:${K}`]?: AppDonorHistory[K] } & OneOf<"donorId", AppDonorHistory["donorId"], AppDonorHistoryAttributes["donorId"]>;
         "app-donor-import": AppDonorImport;
         "app-donor-new": AppDonorNew;
         "app-donors": AppDonors;
@@ -484,6 +506,7 @@ declare module "@stencil/core" {
             "app-donation-new": LocalJSX.IntrinsicElements["app-donation-new"] & JSXBase.HTMLAttributes<HTMLAppDonationNewElement>;
             "app-donations": LocalJSX.IntrinsicElements["app-donations"] & JSXBase.HTMLAttributes<HTMLAppDonationsElement>;
             "app-donor-edit": LocalJSX.IntrinsicElements["app-donor-edit"] & JSXBase.HTMLAttributes<HTMLAppDonorEditElement>;
+            "app-donor-history": LocalJSX.IntrinsicElements["app-donor-history"] & JSXBase.HTMLAttributes<HTMLAppDonorHistoryElement>;
             "app-donor-import": LocalJSX.IntrinsicElements["app-donor-import"] & JSXBase.HTMLAttributes<HTMLAppDonorImportElement>;
             "app-donor-new": LocalJSX.IntrinsicElements["app-donor-new"] & JSXBase.HTMLAttributes<HTMLAppDonorNewElement>;
             "app-donors": LocalJSX.IntrinsicElements["app-donors"] & JSXBase.HTMLAttributes<HTMLAppDonorsElement>;

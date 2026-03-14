@@ -11,10 +11,10 @@ export class AppRoot {
   @State() token: string | null = state.token;
   @State() orgName: string | null = state.orgName;
   @State() currentUser: CurrentUser | null = state.currentUser;
-  @State() path: string = window.location.pathname;
+  @State() path: string = window.location.pathname + window.location.search;
 
   private onPopState = () => {
-    this.path = window.location.pathname;
+    this.path = window.location.pathname + window.location.search;
   };
 
   async componentWillLoad() {
@@ -63,9 +63,10 @@ export class AppRoot {
     else if (route.name === 'donor-new') content = <app-donor-new />;
     else if (route.name === 'donor-import') content = <app-donor-import />;
     else if (route.name === 'donor-edit') content = <app-donor-edit donorId={route.donorId} />;
+    else if (route.name === 'donor-history') content = <app-donor-history donorId={route.donorId} />;
     else if (route.name === 'donors') content = <app-donors />;
     else if (route.name === 'donations') content = <app-donations />;
-    else if (route.name === 'donation-new') content = <app-donation-new />;
+    else if (route.name === 'donation-new') content = <app-donation-new preselectedDonorId={route.preselectedDonorId} />;
     else if (route.name === 'donation-import') content = <app-donation-import />;
     else if (route.name === 'donation-edit') content = <app-donation-edit donationId={route.donationId} />;
     else if (route.name === 'campaigns') content = <app-campaigns />;

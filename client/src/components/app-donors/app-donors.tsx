@@ -445,6 +445,12 @@ export class AppDonors {
                               + Donation
                             </button>
                             <button
+                              onClick={() => navigate(`/donors/${d.id}/history`)}
+                              class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors whitespace-nowrap"
+                            >
+                              History
+                            </button>
+                            <button
                               onClick={() => navigate(`/donors/${d.id}/edit`)}
                               class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                             >

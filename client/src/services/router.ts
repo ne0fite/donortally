@@ -4,8 +4,9 @@ export type ParsedRoute =
   | { name: 'donor-new' }
   | { name: 'donor-import' }
   | { name: 'donor-edit'; donorId: string }
+  | { name: 'donor-history'; donorId: string }
   | { name: 'donations' }
-  | { name: 'donation-new' }
+  | { name: 'donation-new'; preselectedDonorId?: string }
   | { name: 'donation-import' }
   | { name: 'donation-edit'; donationId: string }
   | { name: 'campaigns' }
@@ -25,8 +26,15 @@ export function parseRoute(path: string): ParsedRoute {
   if (path === '/donors/import') return { name: 'donor-import' };
   const donorEditMatch = path.match(/^\/donors\/([^/]+)\/edit$/);
   if (donorEditMatch) return { name: 'donor-edit', donorId: donorEditMatch[1] };
+  const donorHistoryMatch = path.match(/^\/donors\/([^/]+)\/history$/);
+  if (donorHistoryMatch) return { name: 'donor-history', donorId: donorHistoryMatch[1] };
   if (path === '/donations') return { name: 'donations' };
-  if (path === '/donations/new') return { name: 'donation-new' };
+  if (path.startsWith('/donations/new')) {
+    const queryStr = path.split('?')[1] ?? '';
+    const params = new URLSearchParams(queryStr);
+    const preselectedDonorId = params.get('donorId') ?? undefined;
+    return { name: 'donation-new', preselectedDonorId };
+  }
   if (path === '/donations/import') return { name: 'donation-import' };
   const donationEditMatch = path.match(/^\/donations\/([^/]+)\/edit$/);
   if (donationEditMatch) return { name: 'donation-edit', donationId: donationEditMatch[1] };

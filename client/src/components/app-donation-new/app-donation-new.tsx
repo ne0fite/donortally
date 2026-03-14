@@ -1,4 +1,4 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, h, Prop, State } from '@stencil/core';
 import { donationService, CreateDonationPayload } from '../../services/donation';
 import { donorService, Donor } from '../../services/donor';
 import { campaignService, Campaign } from '../../services/campaign';
@@ -12,6 +12,8 @@ const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash'
   shadow: false,
 })
 export class AppDonationNew {
+  @Prop() preselectedDonorId?: string;
+
   @State() donors: Donor[] = [];
   @State() campaigns: Campaign[] = [];
   @State() donorId = '';
@@ -33,6 +35,9 @@ export class AppDonationNew {
         donorService.findAll(),
         campaignService.findAll(),
       ]);
+      if (this.preselectedDonorId) {
+        this.donorId = this.preselectedDonorId;
+      }
     } catch (err: any) {
       this.error = err.message ?? 'Failed to load data';
     } finally {

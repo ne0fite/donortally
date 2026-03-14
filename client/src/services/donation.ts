@@ -77,7 +77,10 @@ export interface ImportDonationsResult {
 }
 
 export const donationService = {
-  findAll: () => api.get<Donation[]>('/donation'),
+  findAll: (params?: { donorId?: string }) => {
+    const qs = params?.donorId ? `?donorId=${encodeURIComponent(params.donorId)}` : '';
+    return api.get<Donation[]>(`/donation${qs}`);
+  },
   findOne: (id: string) => api.get<Donation>(`/donation/${id}`),
   create: (payload: CreateDonationPayload) => api.post<Donation>('/donation', payload),
   update: (id: string, payload: UpdateDonationPayload) => api.post<Donation>(`/donation/${id}`, payload),

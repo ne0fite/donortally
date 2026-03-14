@@ -17,8 +17,10 @@ export class DonationService {
     private readonly sequelize: Sequelize,
   ) {}
 
-  findAll(organizationId: string): Promise<Donation[]> {
-    return this.donationModel.findAll({ where: { organizationId }, ...WITH_RELATIONS });
+  findAll(organizationId: string, donorId?: string): Promise<Donation[]> {
+    const where: any = { organizationId };
+    if (donorId) where.donorId = donorId;
+    return this.donationModel.findAll({ where, ...WITH_RELATIONS });
   }
 
   async findOne(id: string, organizationId: string): Promise<Donation> {
