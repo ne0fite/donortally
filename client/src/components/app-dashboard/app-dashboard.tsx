@@ -149,10 +149,24 @@ export class AppDashboard {
                         {this.recentDonations.map((d) => (
                           <tr key={d.id} class="hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 font-medium text-gray-900">
-                              {d.donor ? `${d.donor.firstName} ${d.donor.lastName}` : '—'}
+                              {d.donor ? (
+                                <button
+                                  onClick={() => navigate(`/donors/${d.donor.id}/history`)}
+                                  class="text-indigo-600 hover:underline font-medium"
+                                >
+                                  {d.donor.firstName || d.donor.lastName
+                                    ? `${d.donor.firstName ?? ''} ${d.donor.lastName ?? ''}`.trim()
+                                    : (d.donor.organizationName || '—')}
+                                </button>
+                              ) : '—'}
                             </td>
                             <td class="px-4 py-3 text-gray-900 font-medium">
-                              {formatCurrency(Number(d.amount))}
+                              <button
+                                onClick={() => navigate(`/donations/${d.id}/edit`)}
+                                class="text-indigo-600 hover:underline font-medium"
+                              >
+                                {formatCurrency(Number(d.amount))}
+                              </button>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{formatDate(d.donationDate)}</td>
                             <td class="px-4 py-3 text-gray-600">
