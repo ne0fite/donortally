@@ -1,7 +1,8 @@
 import { Component, h, State } from '@stencil/core';
 import { userService, User } from '../../services/user';
+import { inviteService } from '../../services/invite';
 import { navigate } from '../../services/router';
-import { formatNumber } from '../../services/format';
+import { formatNumber, formatDateTime } from '../../services/format';
 
 @Component({
   tag: 'app-users',
@@ -18,6 +19,8 @@ export class AppUsers {
   @State() sortCol: 'name' | 'email' = 'name';
   @State() sortDir: 'asc' | 'desc' = 'asc';
   @State() pageSize = 25;
+  @State() resendingId: string | null = null;
+  @State() toast: { message: string; type: 'success' | 'error' } | null = null;
 
   async componentWillLoad() {
     try {
@@ -77,6 +80,20 @@ export class AppUsers {
   private onSearch(value: string) {
     this.search = value;
     this.page = 1;
+  }
+
+  private async handleResendInvite(user: User) {
+    this.resendingId = user.id;
+    try {
+      await inviteService.resendInvite(user.id);
+      this.toast = { message: 'Invite resent', type: 'success' };
+      setTimeout(() => (this.toast = null), 3000);
+    } catch (err: any) {
+      this.toast = { message: err.message ?? 'Failed to resend invite', type: 'error' };
+      setTimeout(() => (this.toast = null), 3000);
+    } finally {
+      this.resendingId = null;
+    }
   }
 
   private async handleDelete() {
@@ -152,6 +169,7 @@ export class AppUsers {
                     {this.sortHeader('Name', 'name')}
                     {this.sortHeader('Email', 'email')}
                     <th class="col-header">Status</th>
+                    <th class="col-header">Last Login</th>
                     <th class="col-header">Super Admin</th>
                     <th class="px-4 py-3" />
                   </tr>
@@ -175,9 +193,19 @@ export class AppUsers {
                           {user.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
+                      <td class="px-4 py-3 text-gray-600">{user.lastLogin ? formatDateTime(user.lastLogin) : '—'}</td>
                       <td class="px-4 py-3 text-gray-600">{user.isSuperAdmin ? 'Yes' : 'No'}</td>
                       <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">
+                          {user.hasPendingInvite && (
+                            <button
+                              onClick={() => this.handleResendInvite(user)}
+                              disabled={this.resendingId === user.id}
+                              class="px-3 py-1.5 rounded-lg border border-indigo-200 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition-colors"
+                            >
+                              {this.resendingId === user.id ? 'Sending…' : 'Resend Invite'}
+                            </button>
+                          )}
                           <button
                             onClick={() => navigate(`/users/${user.id}/edit`)}
                             class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
@@ -210,6 +238,17 @@ export class AppUsers {
             />
           )}
         </div>
+
+        {this.toast && (
+          <div
+            class={
+              `fixed bottom-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white ` +
+              (this.toast.type === 'success' ? 'bg-green-600' : 'bg-red-600')
+            }
+          >
+            {this.toast.message}
+          </div>
+        )}
 
         {this.confirmDelete && (
           <div class="fixed inset-0 z-50 flex items-center justify-center">

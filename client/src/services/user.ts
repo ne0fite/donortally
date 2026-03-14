@@ -7,6 +7,8 @@ export interface User {
   lastName: string;
   isSuperAdmin: boolean;
   isActive: boolean;
+  hasPendingInvite: boolean;
+  lastLogin: string | null;
   organizationId: string;
   createdAt: string;
   updatedAt: string;
@@ -14,9 +16,10 @@ export interface User {
 
 export interface CreateUserPayload {
   email: string;
-  password: string;
+  password?: string;
   firstName: string;
   lastName: string;
+  sendInvite?: boolean;
 }
 
 export interface UpdateUserPayload {

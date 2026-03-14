@@ -13,7 +13,7 @@ import { Organization } from './organization.model';
 @Table({
   tableName: 'user',
   timestamps: true,
-  defaultScope: { attributes: { exclude: ['password'] } },
+  defaultScope: { attributes: { exclude: ['password', 'inviteToken', 'inviteTokenExpiresAt'] } },
 })
 export class User extends Model {
   @PrimaryKey
@@ -24,8 +24,17 @@ export class User extends Model {
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   email: string;
 
-  @Column({ type: DataType.STRING, allowNull: false })
+  @Column({ type: DataType.STRING, allowNull: true })
   password: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  inviteToken: string;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  inviteTokenExpiresAt: Date;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  lastLogin: Date | null;
 
   @Column({ type: DataType.STRING, allowNull: false })
   firstName: string;
