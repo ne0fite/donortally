@@ -68,7 +68,7 @@ export class AppRoot {
     else if (route.name === 'donations') content = <app-donations />;
     else if (route.name === 'donation-new') content = <app-donation-new preselectedDonorId={route.preselectedDonorId} />;
     else if (route.name === 'donation-import') content = <app-donation-import />;
-    else if (route.name === 'donation-edit') content = <app-donation-edit donationId={route.donationId} />;
+    else if (route.name === 'donation-edit') content = <app-donation-edit donationId={route.donationId} returnTo={route.returnTo} />;
     else if (route.name === 'campaigns') content = <app-campaigns />;
     else if (route.name === 'campaign-new') content = <app-campaign-new />;
     else if (route.name === 'campaign-edit') content = <app-campaign-edit campaignId={route.campaignId} />;

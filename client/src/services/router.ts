@@ -8,7 +8,7 @@ export type ParsedRoute =
   | { name: 'donations' }
   | { name: 'donation-new'; preselectedDonorId?: string }
   | { name: 'donation-import' }
-  | { name: 'donation-edit'; donationId: string }
+  | { name: 'donation-edit'; donationId: string; returnTo?: string }
   | { name: 'campaigns' }
   | { name: 'campaign-new' }
   | { name: 'campaign-edit'; campaignId: string }
@@ -36,8 +36,13 @@ export function parseRoute(path: string): ParsedRoute {
     return { name: 'donation-new', preselectedDonorId };
   }
   if (path === '/donations/import') return { name: 'donation-import' };
-  const donationEditMatch = path.match(/^\/donations\/([^/]+)\/edit$/);
-  if (donationEditMatch) return { name: 'donation-edit', donationId: donationEditMatch[1] };
+  const donationEditMatch = path.match(/^\/donations\/([^/]+)\/edit/);
+  if (donationEditMatch) {
+    const queryStr = path.split('?')[1] ?? '';
+    const params = new URLSearchParams(queryStr);
+    const returnTo = params.get('returnTo') ?? undefined;
+    return { name: 'donation-edit', donationId: donationEditMatch[1], returnTo };
+  }
   if (path === '/campaigns') return { name: 'campaigns' };
   if (path === '/campaigns/new') return { name: 'campaign-new' };
   const campaignEditMatch = path.match(/^\/campaigns\/([^/]+)\/edit$/);

@@ -353,7 +353,7 @@ export class AppDonorHistory {
                         <td class="px-4 py-3 text-right">
                           <div class="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => navigate(`/donations/${donation.id}/edit`)}
+                              onClick={() => navigate(`/donations/${donation.id}/edit?returnTo=/donors/${this.donorId}/history`)}
                               class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                               Edit

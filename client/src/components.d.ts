@@ -41,6 +41,7 @@ export namespace Components {
     }
     interface AppDonationEdit {
         "donationId": string;
+        "returnTo"?: string;
     }
     interface AppDonationImport {
     }
@@ -364,6 +365,7 @@ declare namespace LocalJSX {
     }
     interface AppDonationEdit {
         "donationId": string;
+        "returnTo"?: string;
     }
     interface AppDonationImport {
     }
@@ -438,6 +440,7 @@ declare namespace LocalJSX {
     }
     interface AppDonationEditAttributes {
         "donationId": string;
+        "returnTo": string;
     }
     interface AppDonationNewAttributes {
         "preselectedDonorId": string;

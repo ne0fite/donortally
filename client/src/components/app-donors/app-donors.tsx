@@ -7,6 +7,7 @@ import * as XLSX from 'xlsx';
 
 const PAGE_SIZE = 20;
 const DONATION_STATUSES = ['completed', 'pending', 'refunded', 'failed'] as const;
+const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash', 'Credit Card', 'Facebook', 'In Kind', 'Money Order'];
 
 @Component({
   tag: 'app-donors',
@@ -41,9 +42,11 @@ export class AppDonors {
   @State() donCampaignsLoaded = false;
   @State() donAmount = '';
   @State() donCurrency = 'USD';
-  @State() donDate = '';
+  @State() donDate = new Date().toISOString().slice(0, 10);
   @State() donStatus = 'completed';
   @State() donCampaignId = '';
+  @State() donPaymentType = 'Check';
+  @State() donGift = '';
   @State() donNotes = '';
   @State() donAcknowledgedAt = '';
   @State() donSubmitting = false;
@@ -260,8 +263,10 @@ export class AppDonors {
   private resetDonationForm() {
     this.donAmount = '';
     this.donCurrency = 'USD';
-    this.donDate = '';
+    this.donDate = new Date().toISOString().slice(0, 10);
     this.donStatus = 'completed';
+    this.donPaymentType = 'Check';
+    this.donGift = '';
     this.donCampaignId = '';
     this.donNotes = '';
     this.donAcknowledgedAt = '';
@@ -294,6 +299,8 @@ export class AppDonors {
       status: this.donStatus,
     };
     if (this.donCampaignId) payload.campaignId = this.donCampaignId;
+    if (this.donPaymentType) payload.paymentType = this.donPaymentType;
+    if (this.donGift) payload.gift = this.donGift;
     if (this.donNotes) payload.notes = this.donNotes;
     if (this.donAcknowledgedAt) payload.acknowledgedAt = this.donAcknowledgedAt;
 
@@ -523,14 +530,26 @@ export class AppDonors {
                     />
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
-                    <input
-                      type="text"
-                      value={this.donCurrency}
-                      onInput={(e) => (this.donCurrency = (e.target as HTMLInputElement).value)}
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Payment type</label>
+                    <select
+                      onChange={(e) => (this.donPaymentType = (e.target as HTMLSelectElement).value)}
                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                    >
+                      {PAYMENT_TYPES.map((t) => (
+                        <option key={t} value={t} selected={this.donPaymentType === t}>{t}</option>
+                      ))}
+                    </select>
                   </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Gift</label>
+                  <input
+                    type="text"
+                    value={this.donGift}
+                    onInput={(e) => (this.donGift = (e.target as HTMLInputElement).value)}
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
                 </div>
 
                 <div>

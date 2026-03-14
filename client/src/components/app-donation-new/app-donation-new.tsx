@@ -19,8 +19,8 @@ export class AppDonationNew {
   @State() donorId = '';
   @State() campaignId = '';
   @State() amount = '';
-  @State() paymentType = 'Unknown';
-  @State() donationDate = '';
+  @State() paymentType = 'Check';
+  @State() donationDate = new Date().toISOString().slice(0, 10);
   @State() status = 'completed';
   @State() notes = '';
   @State() gift = '';
@@ -64,7 +64,7 @@ export class AppDonationNew {
 
     try {
       await donationService.create(payload);
-      navigate('/donations');
+      navigate(this.preselectedDonorId ? `/donors/${this.preselectedDonorId}/history` : '/donations');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to create donation';
     } finally {
@@ -100,7 +100,7 @@ export class AppDonationNew {
         <div class="max-w-2xl mx-auto px-6 py-8">
           <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
             <button
-              onClick={() => navigate('/donations')}
+              onClick={() => navigate(this.preselectedDonorId ? `/donors/${this.preselectedDonorId}/history` : '/donations')}
               class="hover:text-gray-800 transition-colors"
             >
               Donations
@@ -204,7 +204,7 @@ export class AppDonationNew {
               <div class="flex items-center justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate('/donations')}
+                  onClick={() => navigate(this.preselectedDonorId ? `/donors/${this.preselectedDonorId}/history` : '/donations')}
                   class="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel

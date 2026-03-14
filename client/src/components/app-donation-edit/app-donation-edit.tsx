@@ -12,6 +12,7 @@ const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash'
 })
 export class AppDonationEdit {
   @Prop() donationId!: string;
+  @Prop() returnTo?: string;
 
   @State() campaigns: Campaign[] = [];
   @State() donorName = '';
@@ -72,7 +73,7 @@ export class AppDonationEdit {
 
     try {
       await donationService.update(this.donationId, payload);
-      navigate('/donations');
+      navigate(this.returnTo ?? '/donations');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to update donation';
     } finally {
@@ -108,7 +109,7 @@ export class AppDonationEdit {
         <div class="max-w-2xl mx-auto px-6 py-8">
           <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
             <button
-              onClick={() => navigate('/donations')}
+              onClick={() => navigate(this.returnTo ?? '/donations')}
               class="hover:text-gray-800 transition-colors"
             >
               Donations
@@ -206,7 +207,7 @@ export class AppDonationEdit {
               <div class="flex items-center justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => navigate('/donations')}
+                  onClick={() => navigate(this.returnTo ?? '/donations')}
                   class="px-4 py-2 rounded-lg border border-gray-300 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                 >
                   Cancel
