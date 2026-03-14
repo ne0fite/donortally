@@ -121,3 +121,6 @@ Tests live alongside services as `*.service.spec.ts`. Models are mocked as plain
 
 ### Stencil JSX gotchas
 - `<select>` has no `value` prop — set `selected={state === opt}` on each `<option>` instead (same pattern as status/campaign dropdowns throughout the codebase)
+
+### Commit Message Format
+Use the Conventional Commits specification for commit messages with less than 100 chars

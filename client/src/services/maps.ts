@@ -1,4 +1,4 @@
-import { GOOGLE_MAPS_API_KEY } from '../config';
+import { state } from '../store/auth.store';
 
 export interface AddressFields {
   address1: string;
@@ -20,7 +20,7 @@ function loadBootstrap(): Promise<void> {
       resolve();
     };
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&loading=async&callback=${callbackName}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${state.googleMapsApiKey}&loading=async&callback=${callbackName}`;
     script.onerror = () => reject(new Error('Failed to load Google Maps'));
     document.head.appendChild(script);
   });
@@ -29,7 +29,7 @@ function loadBootstrap(): Promise<void> {
 }
 
 export async function loadPlacesAutocomplete(): Promise<any> {
-  if (!GOOGLE_MAPS_API_KEY) return null;
+  if (!state.googleMapsApiKey) return null;
   await loadBootstrap();
   const { PlaceAutocompleteElement } = await (window as any).google.maps.importLibrary('places');
   return PlaceAutocompleteElement;

@@ -25,8 +25,9 @@ export class UserController {
   }
 
   @Get('me')
-  findMe(@CurrentUser() user: any) {
-    return this.userService.findMe(user.id);
+  async findMe(@CurrentUser() user: any) {
+    const me = await this.userService.findMe(user.id);
+    return { ...me.toJSON(), googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY ?? '' };
   }
 
   @Get(':id')

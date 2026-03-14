@@ -44,9 +44,10 @@ export class AppRoot {
 
   private async fetchOrgName() {
     try {
-      const me = await api.get<{ id: string; firstName: string; lastName: string; email: string; organization: { name: string } }>('/user/me');
+      const me = await api.get<{ id: string; firstName: string; lastName: string; email: string; organization: { name: string }; googleMapsApiKey: string }>('/user/me');
       state.orgName = me.organization?.name ?? null;
       state.currentUser = { id: me.id, firstName: me.firstName, lastName: me.lastName, email: me.email };
+      state.googleMapsApiKey = me.googleMapsApiKey ?? null;
     } catch {
       // non-fatal — header just won't show org name
     }
