@@ -138,7 +138,7 @@ export class AppDonationEdit {
 
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Donation ID</label>
-                  <p class="text-sm text-gray-900">{this.donationDisplayId}</p>
+                  <record-id value={this.donationDisplayId}></record-id>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">

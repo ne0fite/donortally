@@ -314,9 +314,7 @@ export class AppDonations {
                             class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           />
                         </td>
-                        <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
-                          {donation.donationId}
-                        </td>
+                        <td class="px-4 py-3 whitespace-nowrap"><record-id value={donation.donationId}></record-id></td>
                         <td class="px-4 py-3 text-gray-600 whitespace-nowrap">
                           {formatDate(donation.donationDate)}
                         </td>

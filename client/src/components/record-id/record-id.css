@@ -1,0 +1,7 @@
+.record-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #6b7280; /* gray-500 */
+  font-size: 0.75rem; /* text-xs */
+  white-space: nowrap;
+  text-transform: uppercase;
+}

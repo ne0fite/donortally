@@ -103,6 +103,12 @@ export namespace Components {
     }
     interface AppUsers {
     }
+    interface RecordId {
+        /**
+          * @default null
+         */
+        "value": string | null;
+    }
 }
 export interface AppAddressSectionCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -295,6 +301,12 @@ declare global {
         prototype: HTMLAppUsersElement;
         new (): HTMLAppUsersElement;
     };
+    interface HTMLRecordIdElement extends Components.RecordId, HTMLStencilElement {
+    }
+    var HTMLRecordIdElement: {
+        prototype: HTMLRecordIdElement;
+        new (): HTMLRecordIdElement;
+    };
     interface HTMLElementTagNameMap {
         "app-address-section": HTMLAppAddressSectionElement;
         "app-campaign-edit": HTMLAppCampaignEditElement;
@@ -322,6 +334,7 @@ declare global {
         "app-user-edit": HTMLAppUserEditElement;
         "app-user-new": HTMLAppUserNewElement;
         "app-users": HTMLAppUsersElement;
+        "record-id": HTMLRecordIdElement;
     }
 }
 declare namespace LocalJSX {
@@ -427,6 +440,12 @@ declare namespace LocalJSX {
     }
     interface AppUsers {
     }
+    interface RecordId {
+        /**
+          * @default null
+         */
+        "value"?: string | null;
+    }
 
     interface AppAddressSectionAttributes {
         "address1": string;
@@ -465,6 +484,9 @@ declare namespace LocalJSX {
     interface AppUserEditAttributes {
         "userId": string;
     }
+    interface RecordIdAttributes {
+        "value": string | null;
+    }
 
     interface IntrinsicElements {
         "app-address-section": Omit<AppAddressSection, keyof AppAddressSectionAttributes> & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes]?: AppAddressSection[K] } & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes as `attr:${K}`]?: AppAddressSectionAttributes[K] } & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes as `prop:${K}`]?: AppAddressSection[K] };
@@ -493,6 +515,7 @@ declare namespace LocalJSX {
         "app-user-edit": Omit<AppUserEdit, keyof AppUserEditAttributes> & { [K in keyof AppUserEdit & keyof AppUserEditAttributes]?: AppUserEdit[K] } & { [K in keyof AppUserEdit & keyof AppUserEditAttributes as `attr:${K}`]?: AppUserEditAttributes[K] } & { [K in keyof AppUserEdit & keyof AppUserEditAttributes as `prop:${K}`]?: AppUserEdit[K] } & OneOf<"userId", AppUserEdit["userId"], AppUserEditAttributes["userId"]>;
         "app-user-new": AppUserNew;
         "app-users": AppUsers;
+        "record-id": Omit<RecordId, keyof RecordIdAttributes> & { [K in keyof RecordId & keyof RecordIdAttributes]?: RecordId[K] } & { [K in keyof RecordId & keyof RecordIdAttributes as `attr:${K}`]?: RecordIdAttributes[K] } & { [K in keyof RecordId & keyof RecordIdAttributes as `prop:${K}`]?: RecordId[K] };
     }
 }
 export { LocalJSX as JSX };
@@ -525,6 +548,7 @@ declare module "@stencil/core" {
             "app-user-edit": LocalJSX.IntrinsicElements["app-user-edit"] & JSXBase.HTMLAttributes<HTMLAppUserEditElement>;
             "app-user-new": LocalJSX.IntrinsicElements["app-user-new"] & JSXBase.HTMLAttributes<HTMLAppUserNewElement>;
             "app-users": LocalJSX.IntrinsicElements["app-users"] & JSXBase.HTMLAttributes<HTMLAppUsersElement>;
+            "record-id": LocalJSX.IntrinsicElements["record-id"] & JSXBase.HTMLAttributes<HTMLRecordIdElement>;
         }
     }
 }

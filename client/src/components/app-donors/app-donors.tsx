@@ -434,7 +434,7 @@ export class AppDonors {
                             class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                           />
                         </td>
-                        <td class="px-4 py-3 font-mono text-gray-500 text-xs">{d.donorId ?? '—'}</td>
+                        <td class="px-4 py-3"><record-id value={d.donorId}></record-id></td>
                         <td class="px-4 py-3 font-medium text-gray-900">
                           {d.firstName} {d.lastName}
                         </td>
@@ -705,7 +705,7 @@ export class AppDonors {
                         <div class="text-sm flex-1">
                           <div class="font-medium flex items-center gap-2">
                             <span>{[donor.firstName, donor.lastName].filter(Boolean).join(' ') || donor.organizationName || '(No name)'}</span>
-                            {donor.donorId && <span class="text-gray-400 font-normal">{donor.donorId}</span>}
+                            {donor.donorId && <record-id value={donor.donorId}></record-id>}
                             <span class="ml-auto text-xs font-normal text-gray-500">
                               {this.mergeDonationCounts[donor.id] ?? 0} donation{(this.mergeDonationCounts[donor.id] ?? 0) !== 1 ? 's' : ''}
                             </span>
