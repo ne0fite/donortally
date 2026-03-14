@@ -25,7 +25,7 @@ pnpm script:create-org-user  # Bootstrap a new org + user
 ```
 
 Required env vars (copy `api/.env.example` → `api/.env`):
-`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, `PORT` (default 3000), `CLIENT_URL` (CORS origin), `JWT_SECRET`, `NODE_ENV`
+`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`, `PORT` (default 3000), `CLIENT_URL` (CORS origin), `JWT_SECRET`, `NODE_ENV`, `RESEND_API_KEY` (email delivery via Resend)
 
 Initial DB schema (run once, before migrations):
 ```bash
@@ -53,6 +53,8 @@ src/<domain>/
   <domain>.module.ts       # Wires model, service, controller
 src/models/
   <entity>.model.ts        # Sequelize-TypeScript model
+src/email/
+  email.service.ts         # Resend-based email delivery (invite emails)
 ```
 
 Key patterns:
@@ -60,6 +62,8 @@ Key patterns:
 - **Child record sets** (`DonorContact`): replaced wholesale on update (destroy all + bulkCreate), not patched individually
 - **Transactions**: all mutating service methods that touch multiple tables use `sequelize.transaction()`
 - **Audit fields**: every service `create`/`update` method accepts `userId: string` and writes it to `createdById`/`updatedById`; controllers pass `user.id` from `@CurrentUser()`
+- **User invites**: super admins create users with `sendInvite: true`; a token + expiry are stored on the user row and emailed via `EmailService.sendInvite()`; the invite link routes to `/activate?token=...`; activation sets the password, clears the token, and records `lastLogin`
+- **lastLogin**: updated on every successful password login and on account activation via invite
 
 ### Client
 
@@ -69,17 +73,28 @@ Single-page app with a hand-rolled URL router — no router library. To navigate
 src/store/auth.store.ts     # Global state: token, orgName, currentUser (token persisted at localStorage key dp_token)
 src/services/api.ts         # Fetch wrapper; handles 401 → redirect to login; skips res.json() on 204
 src/services/router.ts      # navigate(path), parseRoute(path) — URL-based routing
+src/services/auth.ts        # authService.login() / logout() — sets store token, calls navigate()
 src/services/donor.ts       # Typed service methods over api.ts
+src/services/invite.ts      # inviteService: validate token, activate account, resend invite
 src/services/maps.ts        # Google Places API bootstrap + extractAddressFields()
+src/services/toast.ts       # showToast(message, variant) — dispatches 'app-toast' CustomEvent
+src/services/format.ts      # Formatting utilities (see below)
 src/config.ts               # GOOGLE_MAPS_API_KEY (Places API New must be enabled)
 src/components/
   app-root/                 # Route switcher (listens to popstate)
+  app-header/               # Top navigation bar
+  app-nav/                  # Sidebar navigation
+  app-pager/                # Reusable pagination + page-size selector
+  app-toast/                # Global toast notification listener (app-toast CustomEvent)
   app-login/                # Auth form
+  app-activate/             # Invite activation form (/activate?token=...)
+  app-home/                 # Public home / landing
   app-dashboard/            # Landing page after login
   app-donors/               # Donor list with sort, search, pagination, export
   app-donor-new/            # Create form
   app-donor-import/         # Bulk CSV import
   app-donor-edit/           # Edit form
+  app-donor-history/        # Donation history for a single donor
   app-donations/            # Donation list
   app-donation-new/edit/import/  # Donation CRUD + import
   app-campaigns/new/edit/   # Campaign CRUD
@@ -87,6 +102,7 @@ src/components/
   app-profile/              # Current user profile
   app-settings/             # Org settings
   app-address-section/      # Reusable address fields with Places autocomplete
+  record-id/                # Displays formatted donor/donation IDs (DR-XXXXXXXX)
 ```
 
 `app-address-section` emits `CustomEvent<string>` per field: `address1Change`, `address2Change`, `cityChange`, `donorStateChange`, `postalCodeChange`. The state event is named `donorStateChange` (not `stateChange`) to avoid a native DOM event name conflict.
@@ -125,8 +141,12 @@ Tests live alongside services as `*.service.spec.ts`. Models are mocked as plain
 ### Client formatting utilities
 Use `src/services/format.ts` for all display formatting — do not write local helpers:
 - `formatDate(value)` — handles `string | null | undefined`; appends `T00:00:00` to date-only strings to prevent UTC-midnight timezone shift
+- `formatDateTime(value)` — formats ISO datetime as `MM/DD/YYYY HH:mm:ss` (local time); use for `lastLogin` and other timestamp fields
 - `formatAmount(amount, currency)` — `amount` must be a `number`; `Campaign.goalAmount` is `string | null`, so use `parseFloat` with a null guard
 - `formatNumber(value)` — apply to every displayed count/total (list headers, pager, import screens, stat cards)
+
+### Toasts
+Use `showToast(message, variant)` from `src/services/toast.ts` for all user-facing feedback — do not manage local toast state in components. Variants: `success`, `error`, `warn`, `info`.
 
 ### Commit Message Format
 Use the Conventional Commits specification for commit messages with less than 100 chars
