@@ -62,9 +62,9 @@ export class AppRoot {
   }
 
   render() {
-    if (!this.token) return <app-login />;
-
     const route: ParsedRoute = parseRoute(this.path);
+    if (route.name === 'activate') return <app-activate />;
+    if (!this.token) return <app-login />;
 
     let content: any;
     if (route.name === 'dashboard') content = <app-dashboard />;

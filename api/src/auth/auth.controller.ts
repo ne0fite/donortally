@@ -1,9 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 class LoginDto {
   email: string;
+  password: string;
+}
+
+class ActivateInviteDto {
+  token: string;
   password: string;
 }
 
@@ -22,5 +27,16 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   logout() {
     return { message: 'Logged out' };
+  }
+
+  @Get('invite/validate')
+  validateInvite(@Query('token') token: string) {
+    return this.authService.validateInviteToken(token);
+  }
+
+  @Post('invite/activate')
+  @HttpCode(HttpStatus.OK)
+  activateInvite(@Body() dto: ActivateInviteDto) {
+    return this.authService.activateInvite(dto.token, dto.password);
   }
 }

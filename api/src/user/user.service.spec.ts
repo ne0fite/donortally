@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getModelToken } from '@nestjs/sequelize';
 import * as bcrypt from 'bcrypt';
@@ -6,21 +6,27 @@ import { User } from '../models/user.model';
 import { makeUserRecord } from '../test/fixtures/user-record.fixture';
 import { ORG_ID, USER_ID } from '../test/fixtures/user.fixture';
 import { UserService } from './user.service';
+import { EmailService } from '../email/email.service';
 
 jest.mock('bcrypt');
 const bcryptHash = bcrypt.hash as jest.MockedFunction<typeof bcrypt.hash>;
 
 describe('UserService', () => {
   let service: UserService;
-  let userModel: { findAll: jest.Mock; findOne: jest.Mock; create: jest.Mock };
+  let userModel: { findAll: jest.Mock; findOne: jest.Mock; create: jest.Mock; unscoped: jest.Mock };
+  let emailService: { sendInvite: jest.Mock };
+  let unscopedModel: { findAll: jest.Mock; findOne: jest.Mock };
 
   beforeEach(async () => {
-    userModel = { findAll: jest.fn(), findOne: jest.fn(), create: jest.fn() };
+    unscopedModel = { findAll: jest.fn(), findOne: jest.fn() };
+    userModel = { findAll: jest.fn(), findOne: jest.fn(), create: jest.fn(), unscoped: jest.fn().mockReturnValue(unscopedModel) };
+    emailService = { sendInvite: jest.fn().mockResolvedValue(undefined) };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
         { provide: getModelToken(User), useValue: userModel },
+        { provide: EmailService, useValue: emailService },
       ],
     }).compile();
 
@@ -30,14 +36,22 @@ describe('UserService', () => {
   afterEach(() => jest.clearAllMocks());
 
   describe('findAll', () => {
-    it('returns all users for the organization', async () => {
-      const users = [makeUserRecord(), makeUserRecord({ id: 'other-id' })];
-      userModel.findAll.mockResolvedValue(users);
+    it('returns all users with hasPendingInvite flag', async () => {
+      const base = makeUserRecord({ inviteToken: null });
+      const pending = makeUserRecord({ id: 'other-id', inviteToken: 'some-token', isActive: false });
+      const toJSON = (r: any) => jest.fn().mockReturnValue(r);
+      const mockUsers = [
+        { ...base, toJSON: toJSON(base) },
+        { ...pending, toJSON: toJSON(pending) },
+      ];
+      unscopedModel.findAll.mockResolvedValue(mockUsers);
 
       const result = await service.findAll(ORG_ID);
 
-      expect(userModel.findAll).toHaveBeenCalledWith({ where: { organizationId: ORG_ID } });
-      expect(result).toEqual(users);
+      expect(userModel.unscoped).toHaveBeenCalled();
+      expect(unscopedModel.findAll).toHaveBeenCalledWith({ where: { organizationId: ORG_ID } });
+      expect(result[0].hasPendingInvite).toBe(false);
+      expect(result[1].hasPendingInvite).toBe(true);
     });
   });
 
@@ -111,6 +125,36 @@ describe('UserService', () => {
       userModel.findOne.mockResolvedValue(null);
 
       await expect(service.remove('nonexistent-id', ORG_ID)).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('resendInvite', () => {
+    it('generates a new token and sends invite email', async () => {
+      const user: any = makeUserRecord({ isActive: false, inviteToken: 'old-token' });
+      user.update = jest.fn().mockResolvedValue(user);
+      unscopedModel.findOne.mockResolvedValue(user);
+
+      await service.resendInvite(user.id, ORG_ID, USER_ID);
+
+      expect(userModel.unscoped).toHaveBeenCalled();
+      expect(unscopedModel.findOne).toHaveBeenCalledWith({ where: { id: user.id, organizationId: ORG_ID } });
+      expect(user.update).toHaveBeenCalledWith(
+        expect.objectContaining({ updatedById: USER_ID, inviteToken: expect.any(String), inviteTokenExpiresAt: expect.any(Date) }),
+      );
+      expect(emailService.sendInvite).toHaveBeenCalledWith(user.email, user.firstName, expect.stringContaining('/activate?token='));
+    });
+
+    it('throws NotFoundException when user does not exist', async () => {
+      unscopedModel.findOne.mockResolvedValue(null);
+
+      await expect(service.resendInvite('nonexistent-id', ORG_ID, USER_ID)).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws BadRequestException when user is already active', async () => {
+      const user: any = makeUserRecord({ isActive: true });
+      unscopedModel.findOne.mockResolvedValue(user);
+
+      await expect(service.resendInvite(user.id, ORG_ID, USER_ID)).rejects.toThrow(BadRequestException);
     });
   });
 });

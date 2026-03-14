@@ -8,6 +8,8 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CurrentUser } from "./store/auth.store";
 export { CurrentUser } from "./store/auth.store";
 export namespace Components {
+    interface AppActivate {
+    }
     interface AppAddressSection {
         /**
           * @default ''
@@ -123,6 +125,12 @@ export interface AppPagerCustomEvent<T> extends CustomEvent<T> {
     target: HTMLAppPagerElement;
 }
 declare global {
+    interface HTMLAppActivateElement extends Components.AppActivate, HTMLStencilElement {
+    }
+    var HTMLAppActivateElement: {
+        prototype: HTMLAppActivateElement;
+        new (): HTMLAppActivateElement;
+    };
     interface HTMLAppAddressSectionElementEventMap {
         "address1Change": string;
         "address2Change": string;
@@ -313,6 +321,7 @@ declare global {
         new (): HTMLRecordIdElement;
     };
     interface HTMLElementTagNameMap {
+        "app-activate": HTMLAppActivateElement;
         "app-address-section": HTMLAppAddressSectionElement;
         "app-campaign-edit": HTMLAppCampaignEditElement;
         "app-campaign-new": HTMLAppCampaignNewElement;
@@ -345,6 +354,8 @@ declare global {
 declare namespace LocalJSX {
     type OneOf<K extends string, PropT, AttrT = PropT> = { [P in K]: PropT } & { [P in `attr:${K}` | `prop:${K}`]?: never } | { [P in `attr:${K}`]: AttrT } & { [P in K | `prop:${K}`]?: never } | { [P in `prop:${K}`]: PropT } & { [P in K | `attr:${K}`]?: never };
 
+    interface AppActivate {
+    }
     interface AppAddressSection {
         /**
           * @default ''
@@ -500,6 +511,7 @@ declare namespace LocalJSX {
     }
 
     interface IntrinsicElements {
+        "app-activate": AppActivate;
         "app-address-section": Omit<AppAddressSection, keyof AppAddressSectionAttributes> & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes]?: AppAddressSection[K] } & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes as `attr:${K}`]?: AppAddressSectionAttributes[K] } & { [K in keyof AppAddressSection & keyof AppAddressSectionAttributes as `prop:${K}`]?: AppAddressSection[K] };
         "app-campaign-edit": Omit<AppCampaignEdit, keyof AppCampaignEditAttributes> & { [K in keyof AppCampaignEdit & keyof AppCampaignEditAttributes]?: AppCampaignEdit[K] } & { [K in keyof AppCampaignEdit & keyof AppCampaignEditAttributes as `attr:${K}`]?: AppCampaignEditAttributes[K] } & { [K in keyof AppCampaignEdit & keyof AppCampaignEditAttributes as `prop:${K}`]?: AppCampaignEdit[K] } & OneOf<"campaignId", AppCampaignEdit["campaignId"], AppCampaignEditAttributes["campaignId"]>;
         "app-campaign-new": AppCampaignNew;
@@ -533,6 +545,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "app-activate": LocalJSX.IntrinsicElements["app-activate"] & JSXBase.HTMLAttributes<HTMLAppActivateElement>;
             "app-address-section": LocalJSX.IntrinsicElements["app-address-section"] & JSXBase.HTMLAttributes<HTMLAppAddressSectionElement>;
             "app-campaign-edit": LocalJSX.IntrinsicElements["app-campaign-edit"] & JSXBase.HTMLAttributes<HTMLAppCampaignEditElement>;
             "app-campaign-new": LocalJSX.IntrinsicElements["app-campaign-new"] & JSXBase.HTMLAttributes<HTMLAppCampaignNewElement>;

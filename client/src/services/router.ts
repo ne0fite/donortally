@@ -16,7 +16,8 @@ export type ParsedRoute =
   | { name: 'user-new' }
   | { name: 'user-edit'; userId: string }
   | { name: 'profile' }
-  | { name: 'settings' };
+  | { name: 'settings' }
+  | { name: 'activate' };
 
 export function parseRoute(path: string): ParsedRoute {
   if (path === '/') return { name: 'dashboard' };
@@ -53,6 +54,7 @@ export function parseRoute(path: string): ParsedRoute {
   if (userEditMatch) return { name: 'user-edit', userId: userEditMatch[1] };
   if (path === '/profile') return { name: 'profile' };
   if (path === '/settings') return { name: 'settings' };
+  if (path.startsWith('/activate')) return { name: 'activate' };
   return { name: 'donors' };
 }
 

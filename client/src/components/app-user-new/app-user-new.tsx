@@ -11,6 +11,7 @@ export class AppUserNew {
   @State() lastName = '';
   @State() email = '';
   @State() password = '';
+  @State() mode: 'password' | 'invite' = 'password';
   @State() submitting = false;
   @State() error = '';
 
@@ -19,15 +20,16 @@ export class AppUserNew {
     this.error = '';
     this.submitting = true;
 
-    const payload: CreateUserPayload = {
-      firstName: this.firstName,
-      lastName: this.lastName,
-      email: this.email,
-      password: this.password,
-    };
+    const payload: CreateUserPayload =
+      this.mode === 'invite'
+        ? { firstName: this.firstName, lastName: this.lastName, email: this.email, sendInvite: true }
+        : { firstName: this.firstName, lastName: this.lastName, email: this.email, password: this.password };
 
     try {
       await userService.create(payload);
+      if (this.mode === 'invite') {
+        window.dispatchEvent(new CustomEvent('app-toast', { detail: { message: `Invite sent to ${this.email}`, variant: 'success' } }));
+      }
       navigate('/users');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to create user';
@@ -83,7 +85,34 @@ export class AppUserNew {
                 {this.renderField('Last name', this.lastName, (v) => (this.lastName = v), { required: true })}
               </div>
               {this.renderField('Email', this.email, (v) => (this.email = v), { type: 'email', required: true })}
-              {this.renderField('Password', this.password, (v) => (this.password = v), { type: 'password', required: true })}
+
+              <div>
+                <p class="block text-sm font-medium text-gray-700 mb-2">Password setup</p>
+                <div class="flex flex-col gap-2">
+                  <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="mode"
+                      checked={this.mode === 'password'}
+                      onChange={() => (this.mode = 'password')}
+                    />
+                    Set password now
+                  </label>
+                  <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="mode"
+                      checked={this.mode === 'invite'}
+                      onChange={() => (this.mode = 'invite')}
+                    />
+                    Send invite email
+                  </label>
+                </div>
+              </div>
+
+              {this.mode === 'password' && (
+                this.renderField('Password', this.password, (v) => (this.password = v), { type: 'password', required: true })
+              )}
             </section>
 
             {this.error && (
@@ -103,7 +132,7 @@ export class AppUserNew {
                 disabled={this.submitting}
                 class="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
               >
-                {this.submitting ? 'Saving…' : 'Save user'}
+                {this.submitting ? 'Saving…' : this.mode === 'invite' ? 'Send invite' : 'Save user'}
               </button>
             </div>
           </form>

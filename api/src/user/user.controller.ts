@@ -45,6 +45,12 @@ export class UserController {
     return this.userService.update(id, user.organizationId, dto, user.id);
   }
 
+  @Post(':id/resend-invite')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  resendInvite(@Param('id') id: string, @CurrentUser() user: any) {
+    return this.userService.resendInvite(id, user.organizationId, user.id);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string, @CurrentUser() user: any) {

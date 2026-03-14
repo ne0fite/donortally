@@ -1,9 +1,10 @@
 export class CreateUserDto {
   email: string;
-  password: string;
+  password?: string;
   firstName: string;
   lastName: string;
   isSuperAdmin?: boolean;
+  sendInvite?: boolean;
 }
 
 export class UpdateUserDto {
