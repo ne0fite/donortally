@@ -10,7 +10,11 @@ import {
 } from 'sequelize-typescript';
 import { Organization } from './organization.model';
 
-@Table({ tableName: 'user', timestamps: true })
+@Table({
+  tableName: 'user',
+  timestamps: true,
+  defaultScope: { attributes: { exclude: ['password'] } },
+})
 export class User extends Model {
   @PrimaryKey
   @Default(DataType.UUIDV4)

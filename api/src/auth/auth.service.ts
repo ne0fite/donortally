@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
 
   async login(email: string, password: string): Promise<{ accessToken: string }> {
-    const user = await this.userModel.findOne({ where: { email, isActive: true } });
+    const user = await this.userModel.unscoped().findOne({ where: { email, isActive: true } });
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await bcrypt.compare(password, user.password);

@@ -12,11 +12,11 @@ const bcryptCompare = bcrypt.compare as jest.MockedFunction<typeof bcrypt.compar
 
 describe('AuthService', () => {
   let service: AuthService;
-  let userModel: { findOne: jest.Mock };
+  let userModel: { unscoped: jest.Mock; findOne: jest.Mock };
   let jwtService: { sign: jest.Mock };
 
   beforeEach(async () => {
-    userModel = { findOne: jest.fn() };
+    userModel = { unscoped: jest.fn().mockReturnThis(), findOne: jest.fn() };
     jwtService = { sign: jest.fn().mockReturnValue('signed.jwt.token') };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -40,6 +40,7 @@ describe('AuthService', () => {
 
       const result = await service.login(user.email, 'plaintext');
 
+      expect(userModel.unscoped).toHaveBeenCalled();
       expect(userModel.findOne).toHaveBeenCalledWith({
         where: { email: user.email, isActive: true },
       });
