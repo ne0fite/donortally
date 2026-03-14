@@ -9,6 +9,7 @@ A multi-tenant web application for organizations to record, manage, and report o
 - **Import/export** — Bulk import via CSV/Excel and export to CSV/Excel across donors, donations, and campaigns
 - **Super administration** — Privileged users can view and manage all organizations
 - **Pagination and search** — All list views support search, configurable page size, and sorting
+- **User management** — Invite users via email, track last login, and manage active/inactive status
 
 ## How Organizations Get Access
 
@@ -206,7 +207,7 @@ cd api && DB_HOST=... DB_USER=... DB_PASS=... DB_NAME=... pnpm script:create-org
 | Entity | Description |
 |---|---|
 | Organizations | Top-level tenants; each has its own isolated data |
-| Users | Belong to an organization; some may have super admin privileges |
+| Users | Belong to an organization; some may have super admin privileges; `lastLogin` is recorded on each successful login or account activation |
 | Donors | Individuals or entities that make donations |
 | Donations | Contribution records linked to a donor, organization, and optionally a campaign; track acknowledgment timestamp |
 | Campaigns | Fundraising initiatives within an organization |
