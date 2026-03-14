@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Style Google PlaceAutocompleteElement to match app inputs */
+gmp-place-autocomplete {
+  width: 100%;
+  color-scheme: light;
+}
