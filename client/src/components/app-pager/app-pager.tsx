@@ -1,4 +1,5 @@
 import { Component, Event, EventEmitter, h, Prop } from '@stencil/core';
+import { formatNumber } from '../../services/format';
 
 @Component({
   tag: 'app-pager',
@@ -65,7 +66,7 @@ export class AppPager {
           </select>
         </div>
         <p class="text-sm text-gray-500">
-          Page {this.page} of {this.totalPages} &middot; {this.totalResults} results
+          Page {this.page} of {formatNumber(this.totalPages)} &middot; {formatNumber(this.totalResults)} results
         </p>
       </div>
     );

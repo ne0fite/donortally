@@ -1,6 +1,7 @@
 import { Component, h, State } from '@stencil/core';
 import { userService, User } from '../../services/user';
 import { navigate } from '../../services/router';
+import { formatNumber } from '../../services/format';
 
 @Component({
   tag: 'app-users',
@@ -117,7 +118,7 @@ export class AppUsers {
           <div class="flex items-center justify-between mb-6">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">Users</h2>
-              <p class="text-sm text-gray-500 mt-1">{this.users.length} total</p>
+              <p class="text-sm text-gray-500 mt-1">{formatNumber(this.users.length)} total</p>
             </div>
 
             <div class="flex items-center gap-3">

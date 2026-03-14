@@ -1,18 +1,7 @@
 import { Component, h, State } from '@stencil/core';
 import { campaignService, Campaign } from '../../services/campaign';
 import { navigate } from '../../services/router';
-
-function formatCurrency(value: string | null): string {
-  if (value === null || value === '') return '—';
-  const num = parseFloat(value);
-  if (isNaN(num)) return '—';
-  return num.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-}
-
-function formatDate(value: string | null): string {
-  if (!value) return '—';
-  return new Date(value + 'T00:00:00').toLocaleDateString();
-}
+import { formatDate, formatAmount, formatNumber } from '../../services/format';
 
 @Component({
   tag: 'app-campaigns',
@@ -129,7 +118,7 @@ export class AppCampaigns {
           <div class="flex items-center justify-between mb-6">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">Campaigns</h2>
-              <p class="text-sm text-gray-500 mt-1">{this.campaigns.length} total</p>
+              <p class="text-sm text-gray-500 mt-1">{formatNumber(this.campaigns.length)} total</p>
             </div>
 
             <div class="flex items-center gap-3">
@@ -178,7 +167,7 @@ export class AppCampaigns {
                       </td>
                       <td class="px-4 py-3 text-gray-600">{formatDate(campaign.startDate)}</td>
                       <td class="px-4 py-3 text-gray-600">{formatDate(campaign.endDate)}</td>
-                      <td class="px-4 py-3 text-gray-600">{formatCurrency(campaign.goalAmount)}</td>
+                      <td class="px-4 py-3 text-gray-600">{campaign.goalAmount ? formatAmount(parseFloat(campaign.goalAmount), 'USD') : '—'}</td>
                       <td class="px-4 py-3">
                         <span
                           class={

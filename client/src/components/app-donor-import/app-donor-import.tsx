@@ -2,6 +2,7 @@ import { Component, h, State } from '@stencil/core';
 import * as XLSX from 'xlsx';
 import { donorService, CreateDonorPayload } from '../../services/donor';
 import { navigate } from '../../services/router';
+import { formatNumber } from '../../services/format';
 
 // Donor field options shown in each column's mapping dropdown
 const DONOR_FIELDS: { value: string; label: string }[] = [
@@ -244,7 +245,7 @@ export class AppDonorImport {
     return (
       <div class="space-y-6">
         <p class="text-sm text-gray-500">
-          {this.rows.length} rows detected. Map each column to a donor field, or ignore it.
+          {formatNumber(this.rows.length)} rows detected. Map each column to a donor field, or ignore it.
         </p>
 
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -303,11 +304,11 @@ export class AppDonorImport {
 
         <div class="flex items-center justify-between">
           <p class="text-sm text-gray-500">
-            <span class="font-medium text-gray-900">{validRows}</span> of{' '}
-            {this.rows.length} rows will be imported
+            <span class="font-medium text-gray-900">{formatNumber(validRows)}</span> of{' '}
+            {formatNumber(this.rows.length)} rows will be imported
             {validRows < this.rows.length && (
               <span class="text-gray-400">
-                {' '}({this.rows.length - validRows} skipped — missing name (first, last, or organization))
+                {' '}({formatNumber(this.rows.length - validRows)} skipped — missing name (first, last, or organization))
               </span>
             )}
           </p>
@@ -327,7 +328,7 @@ export class AppDonorImport {
               disabled={this.importing || validRows === 0}
               class="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
-              {this.importing ? 'Importing…' : `Import ${validRows} donor${validRows !== 1 ? 's' : ''}`}
+              {this.importing ? 'Importing…' : `Import ${formatNumber(validRows)} donor${validRows !== 1 ? 's' : ''}`}
             </button>
           </div>
         </div>
@@ -342,11 +343,11 @@ export class AppDonorImport {
       <div class="bg-white rounded-xl border border-gray-200 p-12 flex flex-col items-center gap-6 text-center">
         <div>
           <p class="text-lg font-semibold text-gray-900 mb-1">
-            {this.createdCount} created, {this.updatedCount} updated
+            {formatNumber(this.createdCount)} created, {formatNumber(this.updatedCount)} updated
           </p>
           {this.skippedCount > 0 && (
             <p class="text-sm text-gray-500">
-              {this.skippedCount} row{this.skippedCount !== 1 ? 's' : ''} skipped (missing name (first, last, or organization))
+              {formatNumber(this.skippedCount)} row{this.skippedCount !== 1 ? 's' : ''} skipped (missing name (first, last, or organization))
             </p>
           )}
         </div>

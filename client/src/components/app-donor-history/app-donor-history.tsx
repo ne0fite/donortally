@@ -3,6 +3,7 @@ import { donorService, Donor } from '../../services/donor';
 import { donationService, Donation } from '../../services/donation';
 import { navigate } from '../../services/router';
 import { showToast } from '../../services/toast';
+import { formatDate, formatAmount, formatNumber } from '../../services/format';
 import * as XLSX from 'xlsx';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -19,14 +20,6 @@ const STATUS_CLASSES: Record<string, string> = {
   failed: 'bg-red-100 text-red-700',
 };
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return '—';
-  return new Date(dateStr).toLocaleDateString();
-}
-
-function formatAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
-}
 
 @Component({
   tag: 'app-donor-history',
@@ -253,7 +246,7 @@ export class AppDonorHistory {
                 {this.loading ? 'Donation History' : `Donation History — ${donorName}`}
               </h2>
               {!this.loading && (
-                <p class="text-sm text-gray-500 mt-1">{this.donations.length} total</p>
+                <p class="text-sm text-gray-500 mt-1">{formatNumber(this.donations.length)} total</p>
               )}
             </div>
 

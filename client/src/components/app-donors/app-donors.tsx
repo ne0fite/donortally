@@ -3,6 +3,7 @@ import { donorService, Donor } from '../../services/donor';
 import { donationService, CreateDonationPayload } from '../../services/donation';
 import { campaignService, Campaign } from '../../services/campaign';
 import { navigate } from '../../services/router';
+import { formatNumber } from '../../services/format';
 import { showToast } from '../../services/toast';
 import * as XLSX from 'xlsx';
 
@@ -333,7 +334,7 @@ export class AppDonors {
           <div class="flex items-center justify-between mb-6">
             <div>
               <h2 class="text-2xl font-bold text-gray-900">Donors</h2>
-              <p class="text-sm text-gray-500 mt-1">{this.donors.length} total</p>
+              <p class="text-sm text-gray-500 mt-1">{formatNumber(this.donors.length)} total</p>
             </div>
 
             <div class="flex items-center gap-3">

@@ -3,14 +3,7 @@ import { donorService, Donor } from '../../services/donor';
 import { campaignService, Campaign } from '../../services/campaign';
 import { donationService, Donation } from '../../services/donation';
 import { navigate } from '../../services/router';
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-}
-
-function formatDate(value: string): string {
-  return new Date(value + 'T00:00:00').toLocaleDateString();
-}
+import { formatDate, formatAmount, formatNumber } from '../../services/format';
 
 @Component({
   tag: 'app-dashboard',
@@ -106,24 +99,24 @@ export class AppDashboard {
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {this.renderStatCard(
                   'Total donors',
-                  this.donors.length,
+                  formatNumber(this.donors.length),
                   'across all time',
                   () => navigate('/donors'),
                 )}
                 {this.renderStatCard(
                   'Active campaigns',
-                  this.activeCampaigns,
-                  `${this.campaigns.length} total`,
+                  formatNumber(this.activeCampaigns),
+                  `${formatNumber(this.campaigns.length)} total`,
                   () => navigate('/campaigns'),
                 )}
                 {this.renderStatCard(
                   'Total donations',
-                  this.donations.length,
-                  `${this.completedDonations.length} completed`,
+                  formatNumber(this.donations.length),
+                  `${formatNumber(this.completedDonations.length)} completed`,
                 )}
                 {this.renderStatCard(
                   'Total raised',
-                  formatCurrency(this.totalRaised),
+                  formatAmount(this.totalRaised, 'USD'),
                   'from completed donations',
                 )}
               </div>
@@ -165,7 +158,7 @@ export class AppDashboard {
                                 onClick={() => navigate(`/donations/${d.id}/edit`)}
                                 class="text-indigo-600 hover:underline font-medium"
                               >
-                                {formatCurrency(Number(d.amount))}
+                                {formatAmount(Number(d.amount), 'USD')}
                               </button>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{formatDate(d.donationDate)}</td>

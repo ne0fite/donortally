@@ -2,6 +2,7 @@ import { Component, h, State } from '@stencil/core';
 import * as XLSX from 'xlsx';
 import { donationService, ImportDonationRowPayload } from '../../services/donation';
 import { navigate } from '../../services/router';
+import { formatNumber } from '../../services/format';
 
 const DONATION_FIELDS: { value: string; label: string }[] = [
   { value: 'ignore', label: '— Ignore —' },
@@ -227,7 +228,7 @@ export class AppDonationImport {
     return (
       <div class="space-y-6">
         <p class="text-sm text-gray-500">
-          {this.rows.length} rows detected. Map each column to a donation field, or ignore it.
+          {formatNumber(this.rows.length)} rows detected. Map each column to a donation field, or ignore it.
         </p>
 
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
@@ -285,11 +286,11 @@ export class AppDonationImport {
 
         <div class="flex items-center justify-between">
           <p class="text-sm text-gray-500">
-            <span class="font-medium text-gray-900">{validRows}</span> of{' '}
-            {this.rows.length} rows will be submitted
+            <span class="font-medium text-gray-900">{formatNumber(validRows)}</span> of{' '}
+            {formatNumber(this.rows.length)} rows will be submitted
             {validRows < this.rows.length && (
               <span class="text-gray-400">
-                {' '}({this.rows.length - validRows} skipped — missing Donor ID)
+                {' '}({formatNumber(this.rows.length - validRows)} skipped — missing Donor ID)
               </span>
             )}
           </p>
@@ -309,7 +310,7 @@ export class AppDonationImport {
               disabled={this.importing || validRows === 0}
               class="px-4 py-2 rounded-lg bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
-              {this.importing ? 'Importing…' : `Import ${validRows} donation${validRows !== 1 ? 's' : ''}`}
+              {this.importing ? 'Importing…' : `Import ${formatNumber(validRows)} donation${validRows !== 1 ? 's' : ''}`}
             </button>
           </div>
         </div>
@@ -324,11 +325,11 @@ export class AppDonationImport {
       <div class="space-y-6">
         <div class="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <p class="text-lg font-semibold text-gray-900 mb-1">
-            {this.createdCount} created, {this.updatedCount} updated
+            {formatNumber(this.createdCount)} created, {formatNumber(this.updatedCount)} updated
           </p>
           {this.rejected.length > 0 && (
             <p class="text-sm text-gray-500">
-              {this.rejected.length} row{this.rejected.length !== 1 ? 's' : ''} rejected
+              {formatNumber(this.rejected.length)} row{this.rejected.length !== 1 ? 's' : ''} rejected
             </p>
           )}
         </div>
