@@ -1,6 +1,7 @@
 import { Component, h, State } from '@stencil/core';
 import { donorService, CreateDonorPayload } from '../../services/donor';
 import { navigate } from '../../services/router';
+import { showToast } from '../../services/toast';
 
 interface ContactRow {
   type: 'email' | 'phone' | 'mobile';
@@ -67,6 +68,7 @@ export class AppDonorNew {
 
     try {
       await donorService.create(payload);
+      showToast('Donor saved');
       navigate('/donors');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to create donor';

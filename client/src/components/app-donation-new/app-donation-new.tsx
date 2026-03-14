@@ -3,6 +3,7 @@ import { donationService, CreateDonationPayload } from '../../services/donation'
 import { donorService, Donor } from '../../services/donor';
 import { campaignService, Campaign } from '../../services/campaign';
 import { navigate } from '../../services/router';
+import { showToast } from '../../services/toast';
 
 const STATUSES = ['completed', 'pending', 'refunded', 'failed'] as const;
 const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash', 'Credit Card', 'Facebook', 'In Kind', 'Money Order'];
@@ -64,6 +65,7 @@ export class AppDonationNew {
 
     try {
       await donationService.create(payload);
+      showToast('Donation saved');
       navigate(this.preselectedDonorId ? `/donors/${this.preselectedDonorId}/history` : '/donations');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to create donation';

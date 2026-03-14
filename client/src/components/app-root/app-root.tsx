@@ -1,4 +1,4 @@
-import { Component, h, State } from '@stencil/core';
+import { Component, Element, h, State } from '@stencil/core';
 import { state, onChange, CurrentUser } from '../../store/auth.store';
 import { parseRoute, ParsedRoute } from '../../services/router';
 import { api } from '../../services/api';
@@ -8,6 +8,7 @@ import { api } from '../../services/api';
   shadow: false,
 })
 export class AppRoot {
+  @Element() el!: HTMLElement;
   @State() token: string | null = state.token;
   @State() orgName: string | null = state.orgName;
   @State() currentUser: CurrentUser | null = state.currentUser;
@@ -15,6 +16,11 @@ export class AppRoot {
 
   private onPopState = () => {
     this.path = window.location.pathname + window.location.search;
+  };
+
+  private onToastEvent = (e: Event) => {
+    const { message, variant } = (e as CustomEvent).detail;
+    (this.el.querySelector('app-toast') as any)?.show(message, variant);
   };
 
   async componentWillLoad() {
@@ -36,10 +42,12 @@ export class AppRoot {
     onChange('orgName', (value) => (this.orgName = value));
     onChange('currentUser', (value) => (this.currentUser = value));
     window.addEventListener('popstate', this.onPopState);
+    window.addEventListener('app-toast', this.onToastEvent);
   }
 
   disconnectedCallback() {
     window.removeEventListener('popstate', this.onPopState);
+    window.removeEventListener('app-toast', this.onToastEvent);
   }
 
   private async fetchOrgName() {
@@ -86,6 +94,7 @@ export class AppRoot {
           <app-nav currentPath={this.path} />
           <div class="flex-1 min-w-0">{content}</div>
         </div>
+        <app-toast />
       </div>
     );
   }

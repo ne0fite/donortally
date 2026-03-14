@@ -2,6 +2,7 @@ import { Component, h, Prop, State } from '@stencil/core';
 import { donorService, Donor } from '../../services/donor';
 import { donationService, Donation } from '../../services/donation';
 import { navigate } from '../../services/router';
+import { showToast } from '../../services/toast';
 import * as XLSX from 'xlsx';
 
 const PAGE_SIZE = 20;
@@ -177,6 +178,7 @@ export class AppDonorHistory {
       this.donations = this.donations.filter((d) => d.id !== this.confirmDelete!.id);
       this.selectedIds = this.selectedIds.filter((id) => id !== this.confirmDelete!.id);
       this.confirmDelete = null;
+      showToast('Donation deleted');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to delete donation';
       this.confirmDelete = null;
@@ -196,10 +198,12 @@ export class AppDonorHistory {
     if (this.bulkDeleteInput !== String(this.selectedIds.length)) return;
     this.bulkDeleting = true;
     try {
+      const count = this.selectedIds.length;
       await donationService.bulkDelete(this.selectedIds);
       const deletedSet = new Set(this.selectedIds);
       this.donations = this.donations.filter((d) => !deletedSet.has(d.id));
       this.selectedIds = [];
+      showToast(`${count} donation${count !== 1 ? 's' : ''} deleted`);
       this.bulkDeleteConfirm = false;
     } catch (err: any) {
       this.error = err.message ?? 'Failed to delete donations';

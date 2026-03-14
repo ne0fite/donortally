@@ -2,6 +2,7 @@ import { Component, h, Prop, State } from '@stencil/core';
 import { donationService, UpdateDonationPayload } from '../../services/donation';
 import { campaignService, Campaign } from '../../services/campaign';
 import { navigate } from '../../services/router';
+import { showToast } from '../../services/toast';
 
 const STATUSES = ['completed', 'pending', 'refunded', 'failed'] as const;
 const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash', 'Credit Card', 'Facebook', 'In Kind', 'Money Order'];
@@ -73,6 +74,7 @@ export class AppDonationEdit {
 
     try {
       await donationService.update(this.donationId, payload);
+      showToast('Donation saved');
       navigate(this.returnTo ?? '/donations');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to update donation';

@@ -1,6 +1,7 @@
 import { Component, h, Prop, State } from '@stencil/core';
 import { donorService, UpdateDonorPayload } from '../../services/donor';
 import { navigate } from '../../services/router';
+import { showToast } from '../../services/toast';
 
 interface ContactRow {
   id?: string;
@@ -89,6 +90,7 @@ export class AppDonorEdit {
 
     try {
       await donorService.update(this.donorId, payload);
+      showToast('Donor saved');
       navigate('/donors');
     } catch (err: any) {
       this.error = err.message ?? 'Failed to update donor';
