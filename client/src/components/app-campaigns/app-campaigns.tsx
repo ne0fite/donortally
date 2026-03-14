@@ -2,8 +2,6 @@ import { Component, h, State } from '@stencil/core';
 import { campaignService, Campaign } from '../../services/campaign';
 import { navigate } from '../../services/router';
 
-const PAGE_SIZE = 20;
-
 function formatCurrency(value: string | null): string {
   if (value === null || value === '') return '—';
   const num = parseFloat(value);
@@ -30,6 +28,7 @@ export class AppCampaigns {
   @State() deleting = false;
   @State() sortCol: 'name' | 'startDate' = 'name';
   @State() sortDir: 'asc' | 'desc' = 'asc';
+  @State() pageSize = 25;
 
   async componentWillLoad() {
     try {
@@ -68,12 +67,12 @@ export class AppCampaigns {
   }
 
   private get totalPages() {
-    return Math.max(1, Math.ceil(this.filtered.length / PAGE_SIZE));
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
   }
 
   private get paginated() {
-    const start = (this.page - 1) * PAGE_SIZE;
-    return this.sorted.slice(start, start + PAGE_SIZE);
+    const start = (this.page - 1) * this.pageSize;
+    return this.sorted.slice(start, start + this.pageSize);
   }
 
   private onSort(col: 'name' | 'startDate') {
@@ -220,7 +219,9 @@ export class AppCampaigns {
               page={this.page}
               totalPages={this.totalPages}
               totalResults={this.filtered.length}
+              pageSize={this.pageSize}
               onPageChange={(e: CustomEvent<number>) => (this.page = e.detail)}
+              onPageSizeChange={(e: CustomEvent<number>) => { this.pageSize = e.detail; this.page = 1; }}
             />
           )}
         </div>

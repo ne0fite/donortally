@@ -6,7 +6,6 @@ import { navigate } from '../../services/router';
 import { showToast } from '../../services/toast';
 import * as XLSX from 'xlsx';
 
-const PAGE_SIZE = 20;
 const DONATION_STATUSES = ['completed', 'pending', 'refunded', 'failed'] as const;
 const PAYMENT_TYPES = ['Check', 'Unknown', 'Square', 'PayPal', 'GiveSTL', 'Cash', 'Credit Card', 'Facebook', 'In Kind', 'Money Order'];
 
@@ -28,6 +27,7 @@ export class AppDonors {
   @State() bulkDeleteConfirm = false;
   @State() bulkDeleteInput = '';
   @State() bulkDeleting = false;
+  @State() pageSize = 25;
 
   // Merge modal
   @State() mergeDonors: Donor[] = [];
@@ -106,12 +106,12 @@ export class AppDonors {
   }
 
   private get totalPages() {
-    return Math.max(1, Math.ceil(this.filtered.length / PAGE_SIZE));
+    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
   }
 
   private get paginated() {
-    const start = (this.page - 1) * PAGE_SIZE;
-    return this.sorted.slice(start, start + PAGE_SIZE);
+    const start = (this.page - 1) * this.pageSize;
+    return this.sorted.slice(start, start + this.pageSize);
   }
 
   private get allFilteredSelected() {
@@ -485,12 +485,14 @@ export class AppDonors {
           </div>
 
           {/* Pagination */}
-          {!this.loading && this.totalPages > 1 && (
+          {!this.loading && (
             <app-pager
               page={this.page}
               totalPages={this.totalPages}
               totalResults={this.filtered.length}
+              pageSize={this.pageSize}
               onPageChange={(e: CustomEvent<number>) => (this.page = e.detail)}
+              onPageSizeChange={(e: CustomEvent<number>) => { this.pageSize = e.detail; this.page = 1; }}
             />
           )}
         </div>

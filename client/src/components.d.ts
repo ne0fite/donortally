@@ -84,6 +84,10 @@ export namespace Components {
     }
     interface AppPager {
         "page": number;
+        /**
+          * @default 25
+         */
+        "pageSize": number;
         "totalPages": number;
         "totalResults": number;
     }
@@ -244,6 +248,7 @@ declare global {
     };
     interface HTMLAppPagerElementEventMap {
         "pageChange": number;
+        "pageSizeChange": number;
     }
     interface HTMLAppPagerElement extends Components.AppPager, HTMLStencilElement {
         addEventListener<K extends keyof HTMLAppPagerElementEventMap>(type: K, listener: (this: HTMLAppPagerElement, ev: AppPagerCustomEvent<HTMLAppPagerElementEventMap[K]>) => any, options?: boolean | AddEventListenerOptions): void;
@@ -421,7 +426,12 @@ declare namespace LocalJSX {
     }
     interface AppPager {
         "onPageChange"?: (event: AppPagerCustomEvent<number>) => void;
+        "onPageSizeChange"?: (event: AppPagerCustomEvent<number>) => void;
         "page": number;
+        /**
+          * @default 25
+         */
+        "pageSize"?: number;
         "totalPages": number;
         "totalResults": number;
     }
@@ -480,6 +490,7 @@ declare namespace LocalJSX {
         "page": number;
         "totalPages": number;
         "totalResults": number;
+        "pageSize": number;
     }
     interface AppUserEditAttributes {
         "userId": string;
