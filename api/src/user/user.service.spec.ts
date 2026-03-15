@@ -87,6 +87,18 @@ describe('UserService', () => {
       expect(userModel.create).toHaveBeenCalledWith({ ...dto, password: hashed, organizationId: ORG_ID, createdById: USER_ID, updatedById: USER_ID });
       expect(result).toEqual(created);
     });
+
+    it('sends invite email with acting user when sendInvite is true', async () => {
+      const dto = { email: 'invited@example.com', firstName: 'Invited', lastName: 'Person', sendInvite: true };
+      const created = makeUserRecord({ email: dto.email, isActive: false });
+      const actingUser = makeUserRecord({ organization: { name: 'Test Org' } });
+      userModel.create.mockResolvedValue(created);
+      userModel.findOne.mockResolvedValue(actingUser);
+
+      await service.create(dto, ORG_ID, USER_ID);
+
+      expect(emailService.sendInvite).toHaveBeenCalledWith(dto.email, actingUser, expect.stringContaining('/activate?token='));
+    });
   });
 
   describe('update', () => {
@@ -134,6 +146,9 @@ describe('UserService', () => {
       user.update = jest.fn().mockResolvedValue(user);
       unscopedModel.findOne.mockResolvedValue(user);
 
+      const actingUser = makeUserRecord({ organization: { name: 'Test Org' } });
+      userModel.findOne.mockResolvedValue(actingUser);
+
       await service.resendInvite(user.id, ORG_ID, USER_ID);
 
       expect(userModel.unscoped).toHaveBeenCalled();
@@ -141,7 +156,7 @@ describe('UserService', () => {
       expect(user.update).toHaveBeenCalledWith(
         expect.objectContaining({ updatedById: USER_ID, inviteToken: expect.any(String), inviteTokenExpiresAt: expect.any(Date) }),
       );
-      expect(emailService.sendInvite).toHaveBeenCalledWith(user.email, user.firstName, expect.stringContaining('/activate?token='));
+      expect(emailService.sendInvite).toHaveBeenCalledWith(user.email, actingUser, expect.stringContaining('/activate?token='));
     });
 
     it('throws NotFoundException when user does not exist', async () => {

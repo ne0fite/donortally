@@ -1,21 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { Resend } from 'resend';
+import { User } from '../models/user.model';
 
 @Injectable()
 export class EmailService {
   private readonly resend = new Resend(process.env.RESEND_API_KEY);
+  private readonly activationEmailTemplateId = "donor-tally-activation-email";
 
-  async sendInvite(to: string, firstName: string, activationUrl: string): Promise<void> {
+  async sendInvite(to: string, sender: User, activationUrl: string): Promise<void> {
     await this.resend.emails.send({
       from: 'noreply@donortally.com',
       to,
-      subject: "You've been invited to DonorTally",
-      html: `
-        <p>Hi ${firstName},</p>
-        <p>You've been invited to join DonorTally. Click the link below to set your password and activate your account:</p>
-        <p><a href="${activationUrl}">${activationUrl}</a></p>
-        <p>This link expires in 7 days.</p>
-      `,
+      template: {
+        id: this.activationEmailTemplateId,
+        variables: {
+          inviter_name: `${sender.firstName} ${sender.lastName}`,
+          inviter_email: sender.email,
+          organization_name: sender.organization.name,
+          activation_link: activationUrl,
+        }
+      }
     });
   }
 }

@@ -48,7 +48,8 @@ export class UserService {
         updatedById: userId,
       });
       const activationUrl = `${process.env.CLIENT_URL}/activate?token=${inviteToken}`;
-      await this.emailService.sendInvite(dto.email, dto.firstName, activationUrl);
+      const actingUser = await this.userModel.findOne({ where: { id: userId }, include: [Organization] });
+      await this.emailService.sendInvite(dto.email, actingUser, activationUrl);
       return user;
     }
 
@@ -79,6 +80,7 @@ export class UserService {
     await user.update({ inviteToken, inviteTokenExpiresAt, updatedById: actingUserId });
 
     const activationUrl = `${process.env.CLIENT_URL}/activate?token=${inviteToken}`;
-    await this.emailService.sendInvite(user.email, user.firstName, activationUrl);
+    const actingUser = await this.userModel.findOne({ where: { id: actingUserId }, include: [Organization] });
+    await this.emailService.sendInvite(user.email, actingUser, activationUrl);
   }
 }
